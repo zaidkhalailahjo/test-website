@@ -83,7 +83,7 @@
                     <span id="current-location-display">تحديد الموقع</span>
                 </button>
 
-                <div class="relative cursor-pointer hover:scale-105 transition-transform bg-white/10 p-2 rounded-full" id="cart-btn">
+                <div class="relative cursor-pointer hover:scale-105 transition-transform bg-white/10 p-2 rounded-full" id="cart-btn" onclick="toggleModal('cart', true)">
                     <i data-lucide="shopping-cart" class="w-6 h-6"></i>
                     <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#002d74] hidden">0</span>
                 </div>
@@ -120,7 +120,7 @@
 
     <!-- Modals -->
 
-    <!-- Auth Modal (Phone Number + SMS) -->
+    <!-- Auth Modal (Google Login) -->
     <div id="auth-modal" class="modal fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
         <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative p-6 text-center">
             <button class="close-modal absolute top-4 left-4 bg-gray-100 p-2 rounded-full hover:bg-gray-200 z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -129,7 +129,7 @@
             
             <div id="auth-step-1" class="space-y-4">
                 <button onclick="window.googleLogin()" class="w-full bg-white border border-gray-300 text-gray-700 py-3.5 rounded-xl font-bold text-lg shadow-sm hover:bg-gray-50 transition-all flex justify-center items-center gap-3">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-6 h-6">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" class="w-6 h-6">
                     دخول باستخدام جوجل
                 </button>
             </div>
