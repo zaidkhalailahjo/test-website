@@ -52,11 +52,10 @@
     <!-- Header -->
     <header class="bg-[#002d74] text-white shadow-lg sticky top-0 z-40">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <!-- Logo Area (No click logic) -->
-            <div class="flex items-center gap-3">
-                <img src="https://uploads.onecompiler.io/43n8uttmw/448872dja/WhatsApp_Image_2025-12-21_at_11.54.43_AM-removebg-preview.png" alt="فرح سناكس" class="h-20 md:h-28 w-auto object-contain drop-shadow-xl" onerror="this.outerHTML='<div class=\'text-[#00839b] font-bold text-2xl\'>F</div>'">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.handleLogoClick()">
+                <img src="https://uploads.onecompiler.io/43n8uttmw/448872dja/WhatsApp_Image_2025-12-21_at_11.54.43_AM-removebg-preview.png" alt="فرح سناكس" class="h-14 md:h-16 w-auto object-contain bg-white rounded-xl p-1 shadow-sm" onerror="this.outerHTML='<div class=\'bg-white p-2 rounded-full text-[#00839b] font-bold text-2xl\'>F</div>'">
                 <div class="flex flex-col">
-                    <h1 class="text-xl md:text-2xl font-extrabold tracking-tight mt-1">فرح سناكس</h1>
+                    <h1 class="text-xl md:text-2xl font-extrabold tracking-tight">فرح سناكس</h1>
                     <div id="wallet-display" class="hidden text-xs text-green-300 font-bold flex items-center gap-1 mt-1">
                         <i data-lucide="wallet" class="w-3 h-3"></i> الرصيد: <span id="header-balance">0.00</span> د.أ
                     </div>
@@ -64,8 +63,8 @@
             </div>
             
             <div class="relative hidden md:block w-1/3">
-                <input type="text" id="desktop-search" placeholder="ابحث عن منتج..." class="w-full py-2.5 px-4 pr-11 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#00839b] shadow-inner">
-                <i data-lucide="search" class="absolute right-4 top-3 text-gray-400 w-5 h-5"></i>
+                <input type="text" id="desktop-search" placeholder="ابحث عن منتج..." class="w-full py-2 px-4 pr-10 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#00839b]">
+                <i data-lucide="search" class="absolute left-3 top-2.5 text-gray-400 w-5 h-5"></i>
             </div>
 
             <div class="flex items-center gap-2 md:gap-3">
@@ -91,10 +90,7 @@
             </div>
         </div>
         <div class="md:hidden px-4 pb-3 flex gap-2">
-           <div class="relative flex-grow">
-               <input type="text" id="mobile-search" placeholder="ابحث عن منتج..." class="w-full py-2.5 px-4 pr-10 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#00839b] text-sm shadow-inner">
-               <i data-lucide="search" class="absolute right-3 top-2.5 text-gray-400 w-5 h-5"></i>
-           </div>
+           <input type="text" id="mobile-search" placeholder="ابحث عن منتج..." class="w-full py-2 px-4 rounded-full text-gray-800 focus:outline-none flex-grow text-sm">
            <button onclick="window.toggleModal('location', true)" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-full text-sm font-bold flex items-center justify-center transition-colors border border-white/20 flex-shrink-0">
                 <i data-lucide="map-pin" class="w-5 h-5"></i>
             </button>
@@ -209,11 +205,10 @@
             </div>
             <div id="cart-items-container" class="p-4 space-y-3 overflow-y-auto flex-grow bg-white"></div>
             <div class="p-5 bg-gray-50 border-t space-y-4">
-                
-                <!-- Coupon - Fully Integrated UI -->
-                <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#00839b] shadow-sm">
-                    <input type="text" id="coupon-input" placeholder="أدخل كود الخصم (إن وجد)" class="flex-grow p-3 w-full outline-none text-sm bg-transparent">
-                    <button onclick="window.applyCoupon()" class="bg-[#002d74] text-white px-6 py-3 font-bold text-sm hover:bg-[#001c4a] transition-colors h-full shrink-0">تطبيق</button>
+                <!-- Coupon -->
+                <div class="flex gap-2">
+                    <input type="text" id="coupon-input" placeholder="كود الخصم (إن وجد)" class="flex-grow p-2 border rounded-xl outline-none focus:ring-2 focus:ring-[#00839b] text-sm">
+                    <button onclick="window.applyCoupon()" class="bg-[#002d74] text-white px-4 py-2 rounded-xl font-bold text-sm">تطبيق</button>
                 </div>
                 <div id="coupon-message" class="hidden text-xs font-bold text-center"></div>
 
@@ -278,10 +273,71 @@
         </div>
     </div>
 
+    <!-- Admin Logic -->
+    <div id="admin-auth-modal" class="modal fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/90">
+        <div class="bg-white p-6 rounded-3xl w-full max-w-xs text-center shadow-2xl">
+            <h3 class="text-xl font-black text-[#002d74] mb-2">لوحة الإدارة</h3>
+            <p class="text-xs text-gray-500 mb-4">للمصرح لهم فقط</p>
+            <input type="password" id="admin-password-input" class="w-full p-3 border rounded-xl mb-4 text-center tracking-widest outline-none focus:ring-2 focus:ring-[#00839b]" placeholder="••••••">
+            <button onclick="window.adminLogin()" class="w-full bg-[#00839b] text-white py-3 rounded-xl font-bold shadow-md hover:bg-[#005f73]">دخول</button>
+        </div>
+    </div>
+
+    <div id="admin-panel-modal" class="modal fixed inset-0 z-[190] flex items-center justify-center p-2 md:p-4 bg-gray-100">
+        <div class="bg-white rounded-3xl w-full max-w-4xl h-[95vh] flex flex-col shadow-2xl border overflow-hidden">
+            <div class="p-4 bg-[#002d74] text-white flex justify-between items-center shadow-md z-10">
+                <h2 class="font-bold flex items-center gap-2"><i data-lucide="shield" class="w-5 h-5 text-[#00839b]"></i> تحكم الإدارة</h2>
+                <button class="close-modal p-1.5 rounded-full hover:bg-white/20 bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="flex border-b bg-white text-sm font-bold shadow-sm z-10">
+                <button onclick="window.switchAdminTab('orders')" id="tab-orders" class="flex-1 py-3 border-b-4 border-[#00839b] text-[#00839b]">الطلبات الواردة</button>
+                <button onclick="window.switchAdminTab('users')" id="tab-users" class="flex-1 py-3 border-b-4 border-transparent text-gray-400 hover:text-gray-600">المستخدمين والرصيد</button>
+            </div>
+            <div class="flex-grow overflow-y-auto p-4 bg-gray-50" id="admin-content-area">
+                <!-- Admin Orders -->
+                <div id="admin-orders-sec" class="space-y-4"></div>
+                <!-- Admin Users -->
+                <div id="admin-users-sec" class="hidden space-y-4">
+                    <div class="relative">
+                        <input type="text" id="admin-user-search" oninput="window.renderAdminUsers()" placeholder="ابحث برقم الهاتف أو الاسم..." class="w-full p-3 pr-10 border rounded-xl outline-none focus:ring-2 focus:ring-[#00839b]">
+                        <i data-lucide="search" class="absolute right-3 top-3.5 text-gray-400 w-5 h-5"></i>
+                    </div>
+                    <div id="admin-users-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Wallet Edit Modal -->
+    <div id="admin-wallet-modal" class="modal fixed inset-0 z-[210] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+         <div class="bg-white rounded-3xl w-full max-w-xs p-6 shadow-2xl text-center">
+            <h3 class="font-bold text-[#002d74] mb-1">إضافة/تعديل رصيد</h3>
+            <p id="wallet-edit-phone" class="text-xs text-gray-500 mb-4" dir="ltr"></p>
+            <div class="space-y-3">
+                <input type="number" step="0.01" id="wallet-edit-balance" placeholder="الرصيد المتاح (د.أ)" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500 bg-green-50 font-bold text-center text-green-700 text-xl">
+                <button onclick="window.saveAdminWallet()" class="w-full bg-[#00839b] text-white py-3 rounded-xl font-bold shadow-md hover:bg-[#005f73]">حفظ الرصيد</button>
+                <button class="close-modal w-full text-gray-400 py-2 text-sm font-bold">إلغاء</button>
+            </div>
+         </div>
+    </div>
+
+    <!-- Admin Order Details Modal -->
+    <div id="admin-order-details-modal" class="modal fixed inset-0 z-[220] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+         <div class="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl relative max-h-[90vh] flex flex-col">
+            <div class="p-4 bg-[#002d74] text-white flex justify-between items-center z-10 shadow-md">
+                <h2 class="text-lg font-bold flex items-center gap-2"><i data-lucide="receipt" class="w-5 h-5"></i> تفاصيل الطلب</h2>
+                <button class="close-modal p-1.5 rounded-full hover:bg-white/20 bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="flex-grow overflow-y-auto p-4 bg-gray-50" id="admin-order-details-content">
+                <!-- Details injected here -->
+            </div>
+         </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, runTransaction, updateDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, runTransaction, updateDoc, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Configuration
         const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'farah-snacks-v3';
@@ -293,15 +349,14 @@
             messagingSenderId: "395153655294",
             appId: "1:395153655294:web:60937a81930e7db1e56caf"
         };
+        const ADMIN_PASS = '452011';
 
         const PATH_ORDERS = `artifacts/${APP_ID}/public/data/orders`;
         const PATH_PROFILES = `artifacts/${APP_ID}/public/data/profiles`;
-        const PATH_RESTAURANTS = `artifacts/${APP_ID}/public/data/restaurants`;
-        const PATH_PRODUCTS = `artifacts/${APP_ID}/public/data/menu_products`;
+        const STOCK_PATH = `artifacts/${APP_ID}/public/data/products`;
 
         const CATEGORIES = ['الكل', 'المطاعم', 'شيبس', 'شوكولاتة', 'قهوة', 'بسكويت', 'علكة'];
         
-        // Initial Hardcoded Lists (Will be merged with DB)
         const RESTAURANTS = [
             { name: 'مطعم سلمة', image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/images%20(19).jpeg', desc: 'شاورما ووجبات سريعة', bg: 'bg-white' },
             { name: 'الحموي', image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/logo-12-1.png', desc: 'قهوة تركية ومشروبات', bg: 'bg-black' },
@@ -316,13 +371,6 @@
             { id: '31', name: 'سندويشة بطاطا', price: 0, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/images__20_-removebg-preview.png', ingredients: 'بخبز شراك' },
             { id: 'potato_small', name: 'سندويشة بطاطا صغيرة', price: 0.40, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/images__20_-removebg-preview.png' },
             { id: 'potato_large', name: 'سندويشة بطاطا كبيرة', price: 0.80, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/images__20_-removebg-preview.png' },
-            
-            // الأصناف الجديدة لمطعم سلمة
-            { id: 'zinger', name: 'سندويشة شاورما', price: 1.50, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B3%D8%A7%D9%86%D8%AF%D9%88%D8%AA%D8%B4_%D8%B2%D9%86%D8%AC%D8%B1-removebg-preview.png', ingredients: 'اختر بين سندويشة أو وجبة' },
-            { id: 'zinger_sand', name: 'سندويشة زنجر', price: 1.50, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B3%D8%A7%D9%86%D8%AF%D9%88%D8%AA%D8%B4_%D8%B2%D9%86%D8%AC%D8%B1-removebg-preview.png' },
-            { id: 'zinger_meal', name: 'وجبة زنجر', price: 2.50, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B3%D8%A7%D9%86%D8%AF%D9%88%D8%AA%D8%B4_%D8%B2%D9%86%D8%AC%D8%B1-removebg-preview.png' },
-            { id: 'shawarma_italy', name: 'وجبة شاورما ايطالي', price: 3.75, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B4%D8%A7%D9%88%D8%B1%D9%85%D8%A7-%D8%A7%D9%8A%D8%B7%D8%A7%D9%84%D9%8A-copy-removebg-preview.png', ingredients: 'تقدم مع بطاطا و مخلل و مايونيز' },
-
             { id: '24', name: 'كاسة قهوة', price: 0.50, category: 'المطاعم', restaurant: 'الحموي', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/cafe.jpeg', ingredients: 'قهوه تركية أصيلة.' },
             { id: '25', name: 'Ice tea peach', price: 1.00, category: 'المطاعم', restaurant: 'الحموي', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/pngtree-iced-tea-in-plastic-cup-with-ice-cubes-png-image_15236193-removebg-preview.png' },
             { id: '26', name: 'قهوة لاتيه', price: 2.00, category: 'المطاعم', restaurant: 'انكل اوساكا', hideFromAll: true, image: 'https://uncleosaka.com/wp-content/uploads/2024/02/HOT-COFFEE.png' },
@@ -332,8 +380,6 @@
             { id: 'osaka_3', name: 'Vanilla Latte', price: 2.50, category: 'المطاعم', restaurant: 'انكل اوساكا', hideFromMenu: true, image: 'https://uncleosaka.com/wp-content/uploads/2024/02/testing2.jpg' },
             { id: 'osaka_4', name: 'hazelnut latte', price: 2.50, category: 'المطاعم', restaurant: 'انكل اوساكا', hideFromMenu: true, image: 'https://uncleosaka.com/wp-content/uploads/2024/02/testing2.jpg' },
             { id: 'osaka_5', name: 'Pistachio Latte', price: 2.95, category: 'المطاعم', restaurant: 'انكل اوساكا', hideFromMenu: true, image: 'https://uncleosaka.com/wp-content/uploads/2024/02/testing2.jpg' },
-            
-            // سناكات
             { id: '30', name: 'شوكلاته فيوري', price: 0.10, category: 'المطاعم', restaurant: 'سناكات', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/Xrv1gtMvDtRtqoQfh00kvW4blvOZvPPZeOpnPb3G-removebg-preview.png' },
             { id: '28', name: 'شنينه', price: 0.50, category: 'المطاعم', restaurant: 'سناكات', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/MDLNy6yzNPVuJTPuKCbOyJe6cLZQVaNd8TxHZmci-removebg-preview.png' },
             { id: 'shanina_1', name: 'شنينه 0.50', price: 0.50, category: 'المطاعم', restaurant: 'سناكات', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/MDLNy6yzNPVuJTPuKCbOyJe6cLZQVaNd8TxHZmci-removebg-preview.png' },
@@ -359,20 +405,20 @@
 
         const COUPONS = { 'راشد50': { type: 'fixed', val: 0.50 } }; 
 
+        const LS_STOCK_KEY = 'snack_market_stock';
         const LS_CART_KEY = 'snack_market_cart';
         const LS_LOCATION_KEY = 'snack_market_location';
 
         let appState = {
             db: null, auth: null, user: null, profile: null,
-            isAuthReady: false, listenersInitialized: false,
+            isAuthReady: false, 
             products: PRODUCTS,
-            restaurants: RESTAURANTS,
             cart: {}, customOrder: '',
             category: 'الكل', currentRestaurant: null, search: '',
             appliedCoupon: null, appliedCouponCode: '',
             location: localStorage.getItem(LS_LOCATION_KEY) || null,
             exactLocationLink: null, locationFailCount: 0, exactLocationBypassed: false,
-            myOrders: []
+            adminClickCount: 0, myOrders: [], adminAllOrders: [], adminAllUsers: [], editingUser: null
         };
 
         const showToast = (msg, type) => {
@@ -395,8 +441,31 @@
         document.querySelectorAll('.close-modal').forEach(b => b.onclick = (e) => toggleModal(e.target.closest('.modal').id.replace('-modal',''), false));
 
         // 1. Storage & Firebase
+        const loadLocalStock = () => {
+            try { const s = localStorage.getItem(LS_STOCK_KEY); if (s) return JSON.parse(s); } catch (e) {}
+            const def = {}; PRODUCTS.forEach(p => def[p.id] = { productId: p.id, stock: 9999 }); return def;
+        };
+        const saveLocalStock = () => {
+            const m = {}; appState.products.forEach(p => m[p.id] = { productId: p.id, stock: p.stock||9999 });
+            localStorage.setItem(LS_STOCK_KEY, JSON.stringify(m));
+        };
         const loadLocalCart = () => { try { return JSON.parse(localStorage.getItem(LS_CART_KEY)) || {}; } catch (e) { return {}; } };
         const saveLocalCart = () => localStorage.setItem(LS_CART_KEY, JSON.stringify(appState.cart));
+        const mergeProductsAndStock = (stockMap) => {
+            appState.products = PRODUCTS.map(p => ({ ...p, stock: stockMap[p.id] ? stockMap[p.id].stock : (p.stock||9999) }));
+            renderApp();
+        };
+
+        const initFirestoreStock = async (db) => {
+            try {
+                const snap = await getDocs(collection(db, STOCK_PATH));
+                if (snap.empty) {
+                    const batch = writeBatch(db);
+                    PRODUCTS.forEach(p => batch.set(doc(db, STOCK_PATH, p.id), { productId: p.id, stock: p.stock||9999 }));
+                    await batch.commit();
+                }
+            } catch (e) {}
+        };
 
         const checkLocation = () => {
             if (!appState.location) toggleModal('location', true);
@@ -418,50 +487,42 @@
                     document.getElementById('auth-subtitle')?.classList.add('hidden');
                     toggleModal('auth', true);
                 }
-            }, (error) => console.error("Profile listen err:", error));
+            });
         };
 
         const listenToCart = () => {
             onSnapshot(collection(appState.db, `artifacts/${APP_ID}/users/${appState.user.uid}/cartItems`), (snap) => {
                 appState.cart = {}; snap.forEach(d => appState.cart[d.id] = d.data()); updateCartUI();
-            }, (error) => console.error("Cart listen err:", error));
+            });
         };
 
         const listenToOrders = () => {
             onSnapshot(collection(appState.db, PATH_ORDERS), (snap) => {
+                let hasNew = false;
+                if (appState.adminAllOrders.length > 0) {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added') hasNew = true;
+                    });
+                }
+                if (hasNew) {
+                    showToast("🔔 طلب جديد! تفقد لوحة الإدارة", "success");
+                    try { new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play(); } catch(e){}
+                }
+
                 const all = []; snap.forEach(d => all.push({id: d.id, ...d.data()}));
+                appState.adminAllOrders = all;
+                if(document.getElementById('admin-panel-modal').classList.contains('active')) window.renderAdminOrders();
                 const ago = Date.now() - (30 * 24 * 60 * 60 * 1000);
                 appState.myOrders = all.filter(o => o.uid === appState.user.uid && (o.createdAt?.toMillis ? o.createdAt.toMillis() : Date.now()) > ago).sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
                 window.renderMyOrders();
-            }, (error) => console.error("Orders listen err:", error));
+            });
         };
 
         const initDataListeners = () => {
-            if (!appState.db || appState.db === 'LOCAL') return;
-            
-            // Listen for dynamic restaurants from Admin
-            onSnapshot(collection(appState.db, PATH_RESTAURANTS), (snap) => {
-                const dbRests = [];
-                snap.forEach(d => dbRests.push({ id: d.id, ...d.data() }));
-                appState.restaurants = [...RESTAURANTS];
-                dbRests.forEach(dbR => {
-                    if (!appState.restaurants.find(r => r.name === dbR.name)) appState.restaurants.push(dbR);
-                });
-                renderApp();
-            }, (error) => console.error("Restaurants listen err:", error));
-
-            // Listen for dynamic products from Admin
-            onSnapshot(collection(appState.db, PATH_PRODUCTS), (snap) => {
-                const dbProds = [];
-                snap.forEach(d => dbProds.push({ id: d.id, ...d.data() }));
-                appState.products = [...PRODUCTS];
-                dbProds.forEach(dbP => {
-                    if (!appState.products.find(p => p.name === dbP.name && p.restaurant === dbP.restaurant)) {
-                        appState.products.push(dbP);
-                    }
-                });
-                renderApp();
-            }, (error) => console.error("Products listen err:", error));
+            if (!appState.userId || appState.db === 'LOCAL') return;
+            onSnapshot(query(collection(appState.db, STOCK_PATH)), (snap) => {
+                const stockMap = {}; snap.docs.forEach(d => stockMap[d.id] = d.data()); mergeProductsAndStock(stockMap); 
+            });
         };
 
         const initFirebase = async () => {
@@ -469,38 +530,19 @@
                 const app = initializeApp(FIREBASE_CONFIG);
                 appState.db = getFirestore(app);
                 appState.auth = getAuth(app);
-                
-                const initAuth = async () => {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(appState.auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(appState.auth);
-                    }
-                };
-                await initAuth();
-
                 onAuthStateChanged(appState.auth, (user) => {
                     appState.user = user;
                     if (user) {
-                        if (!appState.listenersInitialized) {
-                            initDataListeners();
-                            appState.listenersInitialized = true;
-                        }
-                        if (!user.isAnonymous) {
-                            appState.userId = user.uid;
-                            listenToProfile(); listenToOrders(); listenToCart(); 
-                        } else {
-                            appState.profile = null; appState.cart = {}; updateAuthUI(); updateCartUI();
-                        }
+                        appState.userId = user.uid;
+                        listenToProfile(); listenToOrders(); listenToCart(); initDataListeners(); initFirestoreStock(appState.db);
                     } else {
                         appState.profile = null; appState.cart = {}; updateAuthUI(); updateCartUI();
                     }
                     appState.isAuthReady = true; checkLocation(); renderProducts(); 
                 });
             } catch (e) {
-                console.error("Firebase init err:", e);
                 appState.db = 'LOCAL'; appState.isAuthReady = true;
-                appState.cart = loadLocalCart();
+                mergeProductsAndStock(loadLocalStock()); appState.cart = loadLocalCart();
                 updateCartUI(); checkLocation();
             }
         };
@@ -525,7 +567,7 @@
         window.logoutUser = () => signOut(appState.auth).then(() => { toggleModal('auth', false); showToast('تم تسجيل الخروج', 'success'); });
 
         const updateAuthUI = () => {
-            const loggedIn = appState.user && !appState.user.isAnonymous;
+            const loggedIn = !!appState.user;
             document.getElementById('auth-btn-text').textContent = loggedIn && appState.profile?.name ? appState.profile.name.split(' ')[0] : (loggedIn ? 'حسابي' : 'دخول');
             document.getElementById('orders-btn').classList.toggle('hidden', !loggedIn);
             
@@ -571,7 +613,7 @@
         window.setCategory = (c) => { appState.category = c; appState.currentRestaurant = null; renderApp(); };
         window.openRestaurant = (n) => { appState.currentRestaurant = n; renderProducts(); };
         window.updateCustomOrder = (v) => { appState.customOrder = v; updateCartUI(); };
-        window.confirmCustomOrder = () => { appState.customOrder = document.getElementById('custom-order-input').value; updateCartUI(); showToast("تم تأكيد الإضافة للسلة!", "success"); };
+        window.confirmCustomOrder = () => { appState.customOrder = document.getElementById('custom-order-input').value; updateCartUI(); showToast("تم تأكيد الإضافة!", "success"); };
 
         const renderProducts = () => {
             document.getElementById('loading-indicator').classList.add('hidden');
@@ -582,15 +624,15 @@
             }
 
             const allowedRest = appState.location === 'البوليفارد' ? ['الحموي', 'انكل اوساكا'] : ['مطعم سلمة', 'سناكات'];
-            const visibleRest = appState.restaurants.filter(r => allowedRest.includes(r.name));
+            const visibleRest = RESTAURANTS.filter(r => allowedRest.includes(r.name));
 
             if (appState.currentRestaurant) {
-                const r = appState.restaurants.find(x => x.name === appState.currentRestaurant);
-                backHtml = `<div class="col-span-2 md:col-span-3 lg:col-span-4 flex items-center gap-4 bg-white rounded-3xl shadow-sm border border-gray-100 p-4 mb-4"><div class="h-14 w-14 rounded-full border border-gray-100 shadow-sm overflow-hidden flex justify-center items-center ${r?.bg||'bg-white'}"><img src="${r?.image}" class="max-h-full max-w-full object-contain ${r?.bg==='bg-black'?'p-1':''}"></div><div><h2 class="text-xl font-bold text-[#002d74]">${appState.currentRestaurant}</h2><p class="text-xs text-gray-500">${r?.desc || ''}</p></div><button class="mr-auto bg-gray-50 p-2 md:px-4 md:py-2 rounded-xl hover:bg-gray-100 flex items-center gap-2 border" onclick="window.setCategory('${appState.category}')"><span class="font-bold text-xs hidden md:block">رجوع</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button></div>`;
+                const r = RESTAURANTS.find(x => x.name === appState.currentRestaurant);
+                backHtml = `<div class="col-span-2 md:col-span-3 lg:col-span-4 flex items-center gap-4 bg-white rounded-3xl shadow-sm border border-gray-100 p-4 mb-4"><div class="h-14 w-14 rounded-full border border-gray-100 shadow-sm overflow-hidden flex justify-center items-center ${r?.bg||'bg-white'}"><img src="${r?.image}" class="max-h-full max-w-full object-contain ${r?.bg==='bg-black'?'p-1':''}"></div><div><h2 class="text-xl font-bold text-[#002d74]">${appState.currentRestaurant}</h2><p class="text-xs text-gray-500">${r?.desc}</p></div><button class="mr-auto bg-gray-50 p-2 md:px-4 md:py-2 rounded-xl hover:bg-gray-100 flex items-center gap-2 border" onclick="window.setCategory('${appState.category}')"><span class="font-bold text-xs hidden md:block">رجوع</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button></div>`;
             }
 
             if (!appState.currentRestaurant && !appState.search && (appState.category === 'الكل' || appState.category === 'المطاعم')) {
-                contentHtml += visibleRest.map(r => `<div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 flex flex-col items-center justify-center hover:shadow-lg cursor-pointer transition-shadow" onclick="window.openRestaurant('${r.name}')"><div class="h-24 w-24 mb-3 rounded-full border-4 border-gray-50 shadow-inner flex items-center justify-center overflow-hidden ${r.bg}"><img src="${r.image}" class="max-h-full max-w-full object-contain ${r.bg==='bg-black'?'p-2':''}"></div><h3 class="font-bold text-[#002d74] text-lg">${r.name}</h3><p class="text-xs text-gray-400 mt-1">${r.desc || ''}</p></div>`).join('');
+                contentHtml += visibleRest.map(r => `<div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 flex flex-col items-center justify-center hover:shadow-lg cursor-pointer transition-shadow" onclick="window.openRestaurant('${r.name}')"><div class="h-24 w-24 mb-3 rounded-full border-4 border-gray-50 shadow-inner flex items-center justify-center overflow-hidden ${r.bg}"><img src="${r.image}" class="max-h-full max-w-full object-contain ${r.bg==='bg-black'?'p-2':''}"></div><h3 class="font-bold text-[#002d74] text-lg">${r.name}</h3><p class="text-xs text-gray-400 mt-1">${r.desc}</p></div>`).join('');
                 if (appState.category === 'المطاعم') { document.getElementById('products-grid').innerHTML = contentHtml; if(window.lucide) lucide.createIcons(); return; }
             }
 
@@ -610,11 +652,10 @@
             
             contentHtml += filtered.map(p => {
                 let qty = 0;
-                if (['24','27','28','31','zinger'].includes(p.id)) {
-                    Object.keys(appState.cart).forEach(k => { if(k.startsWith(p.id)) qty += appState.cart[k].quantity; });
-                } else qty = appState.cart[p.id]?.quantity || 0;
+                if (['24','27','28','31'].includes(p.id)) Object.keys(appState.cart).forEach(k => { if(k.startsWith(p.id)) qty += appState.cart[k].quantity; });
+                else qty = appState.cart[p.id]?.quantity || 0;
 
-                let action = qty > 0 ? (['24','27','28','31','zinger'].includes(p.id) ? `<div class="flex items-center gap-2 bg-gray-50 rounded-full p-1 border" onclick="event.stopPropagation()"><button class="w-7 h-7 bg-white rounded-full text-[#00839b] font-bold shadow-sm" onclick="window.addItem('${p.id}')">+</button><span class="font-bold text-sm min-w-[1rem] text-center">${qty}</span></div>` : `<div class="flex items-center gap-2 bg-gray-50 rounded-full p-1 border" onclick="event.stopPropagation()"><button class="w-7 h-7 bg-white rounded-full text-[#00839b] font-bold shadow-sm" onclick="window.updateQty('${p.id}', 1)">+</button><span class="font-bold text-sm min-w-[1rem] text-center">${qty}</span><button class="w-7 h-7 bg-white rounded-full text-red-500 font-bold shadow-sm" onclick="window.updateQty('${p.id}', -1)">-</button></div>`) : `<button class="bg-[#002d74] text-white p-2 rounded-full shadow-md hover:scale-105 transition-transform" onclick="event.stopPropagation(); window.addItem('${p.id}')"><i data-lucide="plus" class="w-4 h-4"></i></button>`;
+                let action = qty > 0 ? (['24','27','28','31'].includes(p.id) ? `<div class="flex items-center gap-2 bg-gray-50 rounded-full p-1 border" onclick="event.stopPropagation()"><button class="w-7 h-7 bg-white rounded-full text-[#00839b] font-bold shadow-sm" onclick="window.addItem('${p.id}')">+</button><span class="font-bold text-sm min-w-[1rem] text-center">${qty}</span></div>` : `<div class="flex items-center gap-2 bg-gray-50 rounded-full p-1 border" onclick="event.stopPropagation()"><button class="w-7 h-7 bg-white rounded-full text-[#00839b] font-bold shadow-sm" onclick="window.updateQty('${p.id}', 1)">+</button><span class="font-bold text-sm min-w-[1rem] text-center">${qty}</span><button class="w-7 h-7 bg-white rounded-full text-red-500 font-bold shadow-sm" onclick="window.updateQty('${p.id}', -1)">-</button></div>`) : `<button class="bg-[#002d74] text-white p-2 rounded-full shadow-md hover:scale-105 transition-transform" onclick="event.stopPropagation(); window.addItem('${p.id}')"><i data-lucide="plus" class="w-4 h-4"></i></button>`;
 
                 return `<div class="bg-white rounded-3xl p-3 shadow-sm hover:shadow-md border border-transparent hover:border-[#00839b]/20 cursor-pointer flex flex-col" onclick="window.openDetails('${p.id}')"><img src="${p.image}" class="h-28 object-contain mb-3 drop-shadow-sm"><h3 class="font-bold text-gray-800 text-sm mb-1 truncate">${p.name}</h3><div class="mt-auto flex justify-between items-center w-full pt-2"><span class="font-black text-[#00839b] text-sm">${p.price>0?p.price.toFixed(2)+' د.أ':'خيارات'}</span><div>${action}</div></div></div>`;
             }).join('');
@@ -625,18 +666,16 @@
 
         // 4. Cart & Checkout
         window.addItem = (id) => {
-            const loggedIn = appState.user && !appState.user.isAnonymous;
-            if(!loggedIn) return showToast("قم بتسجيل الدخول أولاً", "error");
+            if(!appState.user) return showToast("قم بتسجيل الدخول أولاً", "error");
             if(id==='24') return window.openCoffeeOptions();
             if(id==='27') return window.openOsakaOptions();
             if(id==='28') return window.openShaninaOptions();
             if(id==='31') return window.openPotatoOptions();
-            if(id==='zinger') return window.openZingerOptions();
             window.addToCartWithOption(id, null);
         };
 
         window.addToCartWithOption = async (id, opt) => {
-            if(!appState.user || appState.user.isAnonymous) return;
+            if(!appState.user) return;
             const p = appState.products.find(x => x.id === id);
             const k = opt ? `${id}_${opt}` : id;
             const item = { product: p, quantity: (appState.cart[k]?.quantity||0) + 1, option: opt };
@@ -708,6 +747,18 @@
             }, { enableHighAccuracy: true, timeout: 5000 });
         };
 
+        const getOrderMsg = (enc) => {
+            const t = calculateTotals(), e = (em) => `${em} `, b = (tx) => `*${tx}*`;
+            const name = document.getElementById('customer-name').value.trim();
+            const cTxt = appState.customOrder ? `\n────────────────\n${e('📝')} ${b('منتجات أخرى / ملاحظات:')}\n${appState.customOrder}` : '';
+            const iTxt = Object.values(appState.cart).map(i => `🔹 ${i.product.name} ${i.option?`(${i.option})`:''} (الكمية: ${b(i.quantity)}) ➖ ${b((i.quantity*i.product.price).toFixed(2))} د.أ`).join('\n');
+            const exactLocText = appState.exactLocationLink ? `\n${b('الموقع الدقيق (خرائط جوجل):')}\n${appState.exactLocationLink}\n` : '';
+            const couponText = appState.appliedCoupon ? `${e('🏷️')} ${b('رمز قسيمة تم تطبيقه .')} ${appState.appliedCouponCode}\n` : '';
+
+            const msg = `${e('✨')} ${b('طلب جديد من فرح سناكس')} ${e('✨')}\n\n${e('🧑‍💼')} ${b('العميل:')} ${name}\n${e('🗺️')} ${b('المنطقة:')} ${appState.location}\n${exactLocText}────────────────\n${e('🧾')} ${b('الطلبات:')}\n${iTxt||'لا توجد منتجات من القائمة'}${cTxt}\n────────────────\n${e('🛵')} ${b('سعر التوصيل:')} ${b(t.deliveryFee.toFixed(2))} د.أ\n${e('📋')} ${b('رسوم الخدمة:')} ${b(t.serviceFee.toFixed(2))} د.أ\n${couponText}${e('💳')} ${b('المجموع الكلي:')} ${b(t.total.toFixed(2))} د.أ\n\n${e('🚀')} ${b('الرجاء التوصيل!')}`;
+            return enc ? encodeURIComponent(msg) : msg;
+        };
+
         window.submitOrder = async () => {
             const name = document.getElementById('customer-name').value.trim();
             if(name.length < 3) return showToast("أدخل اسم صحيح", "error");
@@ -722,6 +773,7 @@
 
             try {
                 if(appState.db === 'LOCAL') {
+                    // local handling
                     appState.customOrder = ''; renderProducts(); toggleModal('checkout', false);
                     appState.cart = {}; saveLocalCart(); updateCartUI();
                     showToast("تم إرسال الطلب بنجاح للإدارة!", "success");
@@ -735,7 +787,7 @@
                         uid: appState.user.uid, customerName: name, phone: appState.profile.phone||'',
                         location: appState.location, exactLocation: appState.exactLocationLink, customOrder: appState.customOrder,
                         items: Object.values(appState.cart), total: totals.total, fees: { delivery: totals.deliveryFee, service: totals.serviceFee, discount: totals.discount, coupon: appState.appliedCouponCode },
-                        paymentMethod: pay, status: 'بانتظار قبول الطلب', createdAt: serverTimestamp()
+                        paymentMethod: pay, status: 'قيد الانتظار', createdAt: serverTimestamp()
                     });
                     if(pay === 'wallet') t.update(doc(appState.db, PATH_PROFILES, appState.user.uid), { balance: appState.profile.balance - totals.total });
                     Object.keys(appState.cart).forEach(k => t.delete(doc(appState.db, `artifacts/${APP_ID}/users/${appState.user.uid}/cartItems`, k)));
@@ -748,11 +800,6 @@
         };
 
         // UI Detail Mappers
-        window.openZingerOptions = () => {
-            document.getElementById('product-modal-body').innerHTML = `<div class="p-5 text-center"><img src="https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B3%D8%A7%D9%86%D8%AF%D9%88%D8%AA%D8%B4_%D8%B2%D9%86%D8%AC%D8%B1-removebg-preview.png" class="h-40 mx-auto mb-4"><h2 class="text-2xl font-bold text-[#002d74] mb-4">سندويشة شاورما</h2><div class="space-y-3"><button onclick="window.addItem('zinger_sand');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-3 px-5 bg-gray-50 border rounded-xl font-bold text-[#00839b] hover:bg-[#00839b] hover:text-white transition-colors"><span>سندويشة زنجر</span><span>1.50 د.أ</span></button><button onclick="window.addItem('zinger_meal');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-3 px-5 bg-gray-50 border rounded-xl font-bold text-[#00839b] hover:bg-[#00839b] hover:text-white transition-colors"><span>وجبة زنجر</span><span>2.50 د.أ</span></button></div></div>`;
-            toggleModal('product', true);
-        };
-
         window.openCoffeeOptions = () => {
             const p = appState.products.find(x => x.id === '24'); if(!p) return;
             document.getElementById('product-modal-body').innerHTML = `<div class="p-5 text-center"><img src="${p.image}" class="h-40 mx-auto mb-4"><h2 class="text-2xl font-bold text-[#002d74] mb-4">${p.name}</h2><div class="space-y-2"><button onclick="window.addToCartWithOption('24', 'سادة')" class="w-full py-3 bg-gray-50 border rounded-xl font-bold text-[#00839b] hover:bg-[#00839b] hover:text-white">سادة</button><button onclick="window.addToCartWithOption('24', 'حلوة')" class="w-full py-3 bg-gray-50 border rounded-xl font-bold text-[#00839b] hover:bg-[#00839b] hover:text-white">حلوة</button><button onclick="window.addToCartWithOption('24', 'سكر خفيف')" class="w-full py-3 bg-gray-50 border rounded-xl font-bold text-[#00839b] hover:bg-[#00839b] hover:text-white">سكر خفيف</button></div></div>`;
@@ -778,7 +825,7 @@
             window.addToCartWithOption(id, o.length?o.join(' و '):null);
         };
         window.openDetails = (id) => {
-            if(['24','27','28','31','zinger'].includes(id)) { window.addItem(id); return; }
+            if(['24','27','28','31'].includes(id)) { window.addItem(id); return; }
             const p = appState.products.find(x => x.id === id); if(!p) return;
             document.getElementById('product-modal-body').innerHTML = `<div class="p-5 text-center"><img src="${p.image}" class="h-48 mx-auto mb-4 object-contain"><h2 class="text-2xl font-bold text-[#002d74] mb-2">${p.name}</h2><p class="font-black text-[#00839b] text-xl mb-4">${p.price.toFixed(2)} د.أ</p><p class="text-sm text-gray-500 mb-6">${p.ingredients||''}</p><button onclick="window.addItem('${id}');window.toggleModal('product',false)" class="w-full bg-[#00839b] text-white py-3 rounded-xl font-bold shadow-md">إضافة للسلة</button></div>`;
             toggleModal('product', true);
@@ -786,9 +833,9 @@
 
         const getStatusData = (status) => {
             if(status.includes('قيد التحضير')) return { text: 'قيد التحضير', color: 'text-orange-500', bg: 'bg-orange-100', anim: 'anim-cooking', icon: '🍳' };
-            if(status.includes('في الطريق') || status.includes('قيد التوصيل')) return { text: 'في الطريق', color: 'text-blue-500', bg: 'bg-blue-100', anim: 'anim-driving', icon: '🛵' };
+            if(status.includes('في الطريق')) return { text: 'في الطريق', color: 'text-blue-500', bg: 'bg-blue-100', anim: 'anim-driving', icon: '🛵' };
             if(status.includes('تم التوصيل') || status.includes('تم التسليم')) return { text: 'تم التوصيل', color: 'text-green-500', bg: 'bg-green-100', anim: 'anim-done', icon: '✅' };
-            return { text: status, color: 'text-gray-500', bg: 'bg-gray-200', anim: '', icon: '⏳' };
+            return { text: 'قيد الانتظار', color: 'text-gray-500', bg: 'bg-gray-200', anim: '', icon: '⏳' };
         };
 
         window.renderMyOrders = () => {
@@ -800,10 +847,157 @@
             }).join('');
         };
 
+        // 5. Admin Panel
+        window.handleLogoClick = () => {
+            appState.adminClickCount++;
+            if(appState.adminClickCount >= 10) { appState.adminClickCount=0; toggleModal('admin-auth', true); }
+            setTimeout(()=>appState.adminClickCount=0, 3000);
+        };
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                toggleModal('admin-auth', true);
+            }
+        });
+
+        window.adminLogin = () => {
+            if(document.getElementById('admin-password-input').value === ADMIN_PASS) {
+                toggleModal('admin-auth', false); toggleModal('admin-panel', true); window.fetchAdminUsers();
+            } else showToast("كلمة مرور خاطئة", "error");
+        };
+
+        window.switchAdminTab = (t) => {
+            document.getElementById('admin-orders-sec').classList.toggle('hidden', t!=='orders');
+            document.getElementById('admin-users-sec').classList.toggle('hidden', t!=='users');
+            document.getElementById('tab-orders').className = `flex-1 py-3 border-b-4 ${t==='orders'?'border-[#00839b] text-[#00839b]':'border-transparent text-gray-400 hover:text-gray-600'}`;
+            document.getElementById('tab-users').className = `flex-1 py-3 border-b-4 ${t==='users'?'border-[#00839b] text-[#00839b]':'border-transparent text-gray-400 hover:text-gray-600'}`;
+        };
+
+        window.renderAdminOrders = () => {
+            const sec = document.getElementById('admin-orders-sec');
+            const sorted = appState.adminAllOrders.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+            sec.innerHTML = sorted.map(o => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors" onclick="window.showAdminOrderDetails('${o.id}')">
+                    <div class="flex justify-between items-center mb-1">
+                        <h4 class="font-bold text-[#002d74] text-lg">${o.customerName}</h4>
+                        <span class="text-xs px-3 py-1 rounded-full font-bold ${o.status === 'قيد الانتظار' ? 'bg-yellow-100 text-yellow-700' : 'bg-[#00839b]/10 text-[#00839b]'}">${o.status}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="text-sm text-gray-500"><i data-lucide="map-pin" class="w-3 h-3 inline"></i> ${o.location} | ${o.items.length} منتجات</p>
+                        <span class="font-black text-[#00839b]">${o.total.toFixed(2)} د.أ</span>
+                    </div>
+                </div>`).join('');
+            if(window.lucide) lucide.createIcons();
+        };
+
+        window.showAdminOrderDetails = (orderId) => {
+            const o = appState.adminAllOrders.find(x => x.id === orderId);
+            if(!o) return;
+            
+            const itemsHtml = o.items.map(i => `
+                <div class="flex items-center gap-3 bg-white p-2 rounded-xl border border-gray-100 mb-2 shadow-sm">
+                    <img src="${i.product.image}" class="w-12 h-12 object-contain rounded-lg">
+                    <div class="flex-grow">
+                        <p class="font-bold text-sm text-[#002d74]">${i.product.name} ${i.option ? `<span class="text-[#00839b]">(${i.option})</span>` : ''}</p>
+                        <p class="text-xs text-gray-500 font-bold">الكمية: <span class="text-gray-800">${i.quantity}</span></p>
+                    </div>
+                    <div class="font-black text-[#00839b]">${(i.quantity * i.product.price).toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            const content = `
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-3">
+                            <h4 class="font-bold text-xl text-[#002d74]"><i data-lucide="user" class="w-4 h-4 inline text-gray-400"></i> ${o.customerName}</h4>
+                            <span class="text-xs bg-gray-100 px-3 py-1 rounded-full font-bold text-gray-600">${o.paymentMethod === 'wallet' ? 'دفع محفظة' : 'الدفع كاش'}</span>
+                        </div>
+                        <p class="text-sm font-medium mb-1"><span class="font-bold text-gray-500">المنطقة:</span> ${o.location}</p>
+                        ${o.exactLocation ? `<a href="${o.exactLocation}" target="_blank" class="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1 mt-2 bg-blue-50 p-2 rounded-lg w-max"><i data-lucide="map" class="w-4 h-4"></i> فتح الموقع الدقيق (GPS)</a>` : ''}
+                        <p class="text-sm font-medium mt-2"><span class="font-bold text-gray-500">الهاتف:</span> <span dir="ltr">${o.phone || 'غير متوفر'}</span></p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-sm text-gray-500 mb-2 flex items-center gap-1"><i data-lucide="shopping-bag" class="w-4 h-4"></i> المنتجات المطلوبة</h4>
+                        ${itemsHtml}
+                        ${o.customOrder ? `<div class="bg-red-50 p-3 rounded-xl border border-red-200 text-sm mt-3"><span class="font-bold text-red-600 flex items-center gap-1 mb-1"><i data-lucide="alert-circle" class="w-4 h-4"></i> ملاحظات إضافية:</span> ${o.customOrder}</div>` : ''}
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm text-sm space-y-2 font-medium">
+                        <div class="flex justify-between text-gray-500"><span>سعر التوصيل:</span><span>${(o.fees?.delivery||0).toFixed(2)} د.أ</span></div>
+                        <div class="flex justify-between text-gray-500"><span>رسوم الخدمة:</span><span>${(o.fees?.service||0).toFixed(2)} د.أ</span></div>
+                        ${o.fees?.coupon ? `<div class="flex justify-between text-green-600"><span>كود الخصم (${o.fees.coupon}):</span><span>-${(o.fees?.discount||0).toFixed(2)} د.أ</span></div>` : ''}
+                        <div class="flex justify-between border-t border-gray-100 pt-3 mt-1 font-black text-xl text-[#002d74]"><span>المجموع الكلي:</span><span>${o.total.toFixed(2)} د.أ</span></div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-[#00839b]/30 shadow-sm">
+                        <label class="font-bold text-sm mb-2 block text-[#00839b] flex items-center gap-1"><i data-lucide="activity" class="w-4 h-4"></i> تحديث حالة الطلب:</label>
+                        <select onchange="window.updateOrderStatus('${o.id}', this.value)" class="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 font-bold focus:ring-2 focus:ring-[#00839b] outline-none transition-shadow">
+                            <option ${o.status==='قيد الانتظار'?'selected':''}>قيد الانتظار</option>
+                            <option ${o.status==='قيد التحضير'?'selected':''}>قيد التحضير</option>
+                            <option ${o.status==='في الطريق'?'selected':''}>في الطريق</option>
+                            <option ${o.status==='تم التوصيل'?'selected':''}>تم التوصيل</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            document.getElementById('admin-order-details-content').innerHTML = content;
+            if(window.lucide) lucide.createIcons();
+            toggleModal('admin-order-details', true);
+        };
+
+        window.updateOrderStatus = async (id, s) => {
+            await updateDoc(doc(appState.db, PATH_ORDERS, id), { status: s });
+            showToast("تم تحديث حالة الطلب", "success");
+            // Update the UI immediately without waiting for snap
+            const o = appState.adminAllOrders.find(x => x.id === id);
+            if(o) o.status = s;
+            window.renderAdminOrders();
+        };
+
+        window.fetchAdminUsers = async () => {
+            if(appState.db === 'LOCAL') return;
+            const snap = await getDocs(collection(appState.db, PATH_PROFILES));
+            appState.adminAllUsers = []; snap.forEach(d => appState.adminAllUsers.push({uid: d.id, ...d.data()}));
+            window.renderAdminUsers();
+        };
+
+        window.renderAdminUsers = () => {
+            const term = document.getElementById('admin-user-search').value.trim();
+            const list = document.getElementById('admin-users-list');
+            const filtered = appState.adminAllUsers.filter(u => (u.phone||'').includes(term) || (u.name||'').includes(term));
+            list.innerHTML = filtered.map(u => `<div class="bg-white p-4 rounded-2xl shadow-sm border flex justify-between items-center"><div dir="ltr"><p class="font-bold text-sm text-gray-800">${u.name||'بدون اسم'} - ${u.phone||''}</p><p class="text-xs font-bold text-green-600">الرصيد: ${(u.balance||0).toFixed(2)}</p></div><button onclick="window.openAdminWallet('${u.uid}', '${u.phone||u.name}', ${u.balance||0})" class="bg-[#002d74] text-white p-2 rounded-xl text-xs font-bold">تعديل رصيد</button></div>`).join('');
+        };
+
+        window.openAdminWallet = (uid, nameOrPhone, bal) => {
+            appState.editingUser = uid;
+            document.getElementById('wallet-edit-phone').textContent = nameOrPhone;
+            document.getElementById('wallet-edit-balance').value = bal;
+            toggleModal('admin-wallet', true);
+        };
+
+        window.saveAdminWallet = async () => {
+            const bal = parseFloat(document.getElementById('wallet-edit-balance').value) || 0;
+            try {
+                await updateDoc(doc(appState.db, PATH_PROFILES, appState.editingUser), { balance: bal });
+                const u = appState.adminAllUsers.find(x=>x.uid===appState.editingUser); if(u) u.balance = bal;
+                window.renderAdminUsers(); toggleModal('admin-wallet', false); showToast("تم تحديث الرصيد", "success");
+            } catch(e) { showToast("خطأ بالاتصال", "error"); }
+        };
+
         // Events
         const handleSearch = (e) => { appState.search = e.target.value.trim(); renderProducts(); };
         document.getElementById('desktop-search')?.addEventListener('input', handleSearch);
         document.getElementById('mobile-search')?.addEventListener('input', handleSearch);
+
+        // Keyboard shortcut for Admin Panel (Ctrl + Enter)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                toggleModal('admin-auth', true);
+            }
+        });
 
         const renderApp = () => { renderCategories(); renderProducts(); if(window.lucide) lucide.createIcons(); };
         
