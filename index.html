@@ -389,10 +389,10 @@
 
         // === TELEGRAM BOT CONFIGURATION ===
         const TELEGRAM_TOKEN = '8763721643:AAFySvK6lMwmaPbf4w6es76sdNq_T_aG9xw';
-        const TELEGRAM_CHAT_ID = 'ضع_رقمك_هنا'; // ضع الـ ID هنا
+        const TELEGRAM_CHAT_ID = '7065245608'; // ضع الـ ID هنا
 
         const sendTelegramNotification = async (title) => {
-            if(TELEGRAM_CHAT_ID === 'ضع_رقمك_هنا') return;
+            if(TELEGRAM_CHAT_ID === '7065245608') return;
             const text = `🔔 <b>${title}</b>\n\nالرابط:\nhttps://admin.farah-snacks.store/`;
             const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
             try {
