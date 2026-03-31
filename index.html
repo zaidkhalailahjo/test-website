@@ -165,9 +165,49 @@
                     <p class="text-xs text-red-800 font-bold mb-1">المستحقات غير المدفوعة</p>
                     <p class="text-lg font-black text-red-600"><span id="profile-debt">0.00</span> د.أ</p>
                 </div>
+                
+                <button onclick="window.openFeedback()" class="w-full bg-blue-50 text-[#002d74] py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors mt-4 flex items-center justify-center gap-2">
+                    <i data-lucide="message-square" class="w-5 h-5"></i> الاقتراحات والشكاوي
+                </button>
                 <button onclick="window.confirmLogout()" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold hover:bg-red-100 transition-colors mt-2">تسجيل الخروج</button>
             </div>
         </div>
+    </div>
+
+    <!-- Feedback (Suggestions & Complaints) Modal -->
+    <div id="feedback-modal" class="modal fixed inset-0 z-[125] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+         <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative p-6">
+            <button class="close-modal absolute top-4 left-4 p-2 rounded-full hover:bg-gray-100 z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            
+            <!-- Main Feedback List -->
+            <div id="feedback-list-sec">
+                <h2 class="text-xl font-bold text-[#002d74] text-center mb-5 border-b pb-3">الاقتراحات والشكاوي</h2>
+                <div class="flex gap-3 mb-6">
+                    <button onclick="window.showFeedbackForm('suggestion')" class="flex-1 bg-[#00839b] text-white py-3 rounded-xl font-bold shadow-md hover:bg-[#005f73] transition-colors flex flex-col items-center gap-1">
+                        <i data-lucide="lightbulb" class="w-5 h-5"></i> تقديم اقتراح
+                    </button>
+                    <button onclick="window.showFeedbackForm('complaint')" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-red-600 transition-colors flex flex-col items-center gap-1">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i> تقديم شكوى
+                    </button>
+                </div>
+                <h3 class="font-bold text-gray-700 text-sm mb-3"><i data-lucide="history" class="w-4 h-4 inline"></i> سجل الطلبات السابقة</h3>
+                <div id="feedback-items" class="max-h-[30vh] overflow-y-auto space-y-2 pr-1">
+                    <!-- Items injected here -->
+                </div>
+            </div>
+
+            <!-- Feedback Form -->
+            <div id="feedback-form-sec" class="hidden">
+                <div class="flex items-center mb-5 border-b pb-3">
+                    <button onclick="window.openFeedback()" class="p-1 hover:bg-gray-100 rounded-full mr-2"><i data-lucide="arrow-right" class="w-5 h-5 text-gray-600"></i></button>
+                    <h2 class="text-xl font-bold text-[#002d74] mx-auto pr-6" id="feedback-form-title">تقديم</h2>
+                </div>
+                <textarea id="feedback-text" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-[#00839b] bg-gray-50 text-sm mb-4 font-medium" rows="5" placeholder="اكتب ما تود إرساله للإدارة هنا..."></textarea>
+                <button id="submit-feedback-btn" onclick="window.submitFeedback()" class="w-full bg-[#002d74] text-white py-3.5 rounded-xl font-bold text-lg shadow-md hover:bg-blue-900 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-5 h-5"></i> إرسال للإدارة
+                </button>
+            </div>
+         </div>
     </div>
 
     <!-- Logout Confirmation Modal -->
@@ -177,7 +217,7 @@
             <p class="text-gray-600 mb-6 font-medium">هل أنت متأكد من تسجيل الخروج؟</p>
             <div class="flex gap-3">
                 <button onclick="window.executeLogout()" class="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold shadow-md hover:bg-red-600 transition-colors">نعم</button>
-                <button onclick="window.toggleModal('logout-confirm', false)" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors">لا</button>
+                <button onclick="window.toggleModal('logout-confirm', false)" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors border border-gray-200">لا</button>
             </div>
         </div>
     </div>
@@ -327,8 +367,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, runTransaction, updateDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, runTransaction, updateDoc, serverTimestamp, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Configuration
         const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'farah-snacks-v3';
@@ -345,10 +385,11 @@
         const PATH_PROFILES = `artifacts/${APP_ID}/public/data/profiles`;
         const PATH_RESTAURANTS = `artifacts/${APP_ID}/public/data/restaurants`;
         const PATH_PRODUCTS = `artifacts/${APP_ID}/public/data/menu_products`;
+        const PATH_FEEDBACK = `artifacts/${APP_ID}/public/data/feedback`;
 
         const CATEGORIES = ['الكل', 'المطاعم', 'شيبس', 'شوكولاتة', 'قهوة', 'بسكويت', 'علكة'];
         
-        // Initial Hardcoded Lists (Will be merged with DB)
+        // Initial Hardcoded Lists
         const RESTAURANTS = [
             { name: 'مطعم سلمة', image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/images%20(19).jpeg', desc: 'شاورما ووجبات سريعة', bg: 'bg-white' },
             { name: 'الحموي', image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/logo-12-1.png', desc: 'قهوة تركية ومشروبات', bg: 'bg-black' },
@@ -419,16 +460,17 @@
             appliedCoupon: null, appliedCouponCode: '',
             location: localStorage.getItem(LS_LOCATION_KEY) || null,
             exactLocationLink: null, locationFailCount: 0, exactLocationBypassed: false,
-            myOrders: []
+            myOrders: [], feedback: [], currentFeedbackType: 'suggestion'
         };
 
         const showToast = (msg, type) => {
             const c = document.getElementById('toast-container');
             if(!c) return;
             const el = document.createElement('div');
-            el.className = `p-4 rounded-xl shadow-2xl font-bold text-white text-sm transform transition-all ${type==='success'?'bg-green-500':'bg-red-500'}`;
-            el.textContent = msg;
+            el.className = `p-4 rounded-xl shadow-2xl font-bold text-white text-sm transform transition-all flex items-center gap-2 ${type==='success'?'bg-green-500':'bg-red-500'}`;
+            el.innerHTML = `<i data-lucide="${type==='success'?'check-circle':'alert-circle'}" class="w-5 h-5 shrink-0"></i> ${msg}`;
             c.appendChild(el);
+            if(window.lucide) lucide.createIcons();
             setTimeout(() => el.remove(), 5000);
         };
 
@@ -494,6 +536,16 @@
             }, (error) => console.log("Orders listen err"));
         };
 
+        const listenToFeedback = () => {
+            onSnapshot(collection(appState.db, PATH_FEEDBACK), (snap) => {
+                const all = []; snap.forEach(d => all.push({id: d.id, ...d.data()}));
+                appState.feedback = all.filter(f => f.uid === appState.user.uid);
+                if(document.getElementById('feedback-modal') && document.getElementById('feedback-modal').classList.contains('active')){
+                    window.renderFeedbackList();
+                }
+            }, (error) => console.log("Feedback listen err"));
+        };
+
         const initDataListeners = () => {
             if (!appState.db || appState.db === 'LOCAL' || !appState.user) return;
             
@@ -535,7 +587,7 @@
                         }
                         if (!user.isAnonymous) {
                             appState.userId = user.uid;
-                            listenToProfile(); listenToOrders(); listenToCart(); 
+                            listenToProfile(); listenToOrders(); listenToCart(); listenToFeedback();
                         } else {
                             appState.profile = null; appState.cart = {}; updateAuthUI(); updateCartUI();
                         }
@@ -581,7 +633,7 @@
         window.executeLogout = () => {
             signOut(appState.auth).then(() => { 
                 toggleModal('logout-confirm', false); 
-                showToast('تم تسجيل الخروج', 'success'); 
+                showToast('تم تسجيل الخروج بنجاح', 'success'); 
             });
         };
 
@@ -623,6 +675,71 @@
                     debtContainer.classList.add('hidden');
                 }
             }
+        };
+
+        // Feedback Logic
+        window.openFeedback = () => {
+            toggleModal('auth', false);
+            window.renderFeedbackList();
+            document.getElementById('feedback-form-sec').classList.add('hidden');
+            document.getElementById('feedback-list-sec').classList.remove('hidden');
+            toggleModal('feedback', true);
+        };
+
+        window.showFeedbackForm = (type) => {
+            appState.currentFeedbackType = type;
+            document.getElementById('feedback-form-title').innerText = type === 'complaint' ? 'تقديم شكوى' : 'تقديم اقتراح';
+            document.getElementById('feedback-text').value = '';
+            document.getElementById('feedback-list-sec').classList.add('hidden');
+            document.getElementById('feedback-form-sec').classList.remove('hidden');
+        };
+
+        window.submitFeedback = async () => {
+            const text = document.getElementById('feedback-text').value.trim();
+            if(!text) return showToast("الرجاء كتابة المحتوى أولاً", "error");
+            
+            const btn = document.getElementById('submit-feedback-btn');
+            btn.disabled = true; btn.innerHTML = '<div class="loader mx-auto" style="width: 20px; height: 20px; border-top-color: white;"></div>';
+            
+            try {
+                await addDoc(collection(appState.db, PATH_FEEDBACK), {
+                    uid: appState.user.uid,
+                    customerName: appState.profile?.name || 'بدون اسم',
+                    phone: appState.profile?.phone || '',
+                    type: appState.currentFeedbackType,
+                    content: text,
+                    status: 'يتم حلها',
+                    createdAt: serverTimestamp()
+                });
+                showToast("تم الإرسال للإدارة بنجاح!", "success");
+                window.openFeedback();
+            } catch(e) {
+                console.error(e);
+                showToast("حدث خطأ", "error");
+            }
+            btn.disabled = false; btn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i> إرسال للإدارة';
+            if(window.lucide) lucide.createIcons();
+        };
+
+        window.renderFeedbackList = () => {
+            const container = document.getElementById('feedback-items');
+            if(!appState.feedback || appState.feedback.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-6 text-sm font-bold">لا يوجد سجل سابق</p>';
+                return;
+            }
+            const sorted = [...appState.feedback].sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+            container.innerHTML = sorted.map(f => {
+                const isResolved = f.status === 'تم حلها';
+                const statusColor = isResolved ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700';
+                const typeLabel = f.type === 'complaint' ? 'شكوى' : 'اقتراح';
+                return `<div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl mb-2 text-right">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-[#002d74] text-sm">${typeLabel}</span>
+                        <span class="text-xs font-bold px-3 py-1 rounded-full ${statusColor}">${f.status || 'يتم حلها'}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 line-clamp-2 font-medium">${f.content}</p>
+                </div>`;
+            }).join('');
         };
 
         // 3. Main App Logic
@@ -701,10 +818,10 @@
                 } else {
                     // Normal products
                     if (qty > 0) {
-                        action = `<div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-full w-[90px] h-10 px-1 shadow-sm" onclick="event.stopPropagation()">
-                            <button class="text-red-500 font-bold text-lg w-8 h-8 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors" onclick="window.updateQty('${p.id}', -1)">-</button>
-                            <span class="font-bold text-[#002d74] text-base mb-0.5">${qty}</span>
-                            <button class="text-[#00839b] font-bold text-lg w-8 h-8 flex items-center justify-center hover:bg-gray-200 rounded-full transition-colors" onclick="window.updateQty('${p.id}', 1)">+</button>
+                        action = `<div class="flex items-center justify-between bg-[#f3f4f6] rounded-full w-[100px] h-[40px] p-1 shadow-inner border border-gray-200" onclick="event.stopPropagation()">
+                            <button class="text-red-500 font-bold text-2xl w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-100 transition-colors" style="line-height: 0; padding-bottom: 2px;" onclick="window.updateQty('${p.id}', -1)">-</button>
+                            <span class="font-extrabold text-[#002d74] text-lg">${qty}</span>
+                            <button class="text-[#00839b] font-bold text-2xl w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-100 transition-colors" style="line-height: 0; padding-bottom: 2px;" onclick="window.updateQty('${p.id}', 1)">+</button>
                         </div>`;
                     } else {
                         action = `<button class="bg-[#002d74] w-10 h-10 flex items-center justify-center rounded-full text-white shadow-md hover:scale-105 transition-transform" onclick="event.stopPropagation(); window.addItem('${p.id}')"><i data-lucide="shopping-cart" class="w-5 h-5"></i></button>`;
@@ -783,10 +900,10 @@
                         <p class="font-bold text-sm text-[#002d74]">${i.product.name} ${i.option?`<span class="text-[#00839b]">(${i.option})</span>`:''}</p>
                         <p class="text-xs font-bold text-gray-500 mt-1">${i.product.price.toFixed(2)} د.أ</p>
                     </div>
-                    <div class="flex items-center justify-between bg-white border border-gray-200 rounded-full w-[80px] h-9 px-1 shadow-sm">
-                        <button onclick="window.updateQty('${i.option?i.product.id+'_'+i.option:i.product.id}', -1)" class="text-red-500 font-bold text-lg w-7 h-7 flex items-center justify-center hover:bg-gray-100 rounded-full">-</button>
-                        <span class="font-bold text-[#002d74] text-sm">${i.quantity}</span>
-                        <button onclick="window.updateQty('${i.option?i.product.id+'_'+i.option:i.product.id}', 1)" class="text-[#00839b] font-bold text-lg w-7 h-7 flex items-center justify-center hover:bg-gray-100 rounded-full">+</button>
+                    <div class="flex items-center justify-between bg-[#f3f4f6] rounded-full w-[90px] h-10 p-1 shadow-inner border border-gray-200">
+                        <button onclick="window.updateQty('${i.option?i.product.id+'_'+i.option:i.product.id}', -1)" class="text-red-500 font-bold text-2xl w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-100 transition-colors" style="line-height: 0; padding-bottom: 2px;">-</button>
+                        <span class="font-extrabold text-[#002d74] text-lg">${i.quantity}</span>
+                        <button onclick="window.updateQty('${i.option?i.product.id+'_'+i.option:i.product.id}', 1)" class="text-[#00839b] font-bold text-2xl w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-100 transition-colors" style="line-height: 0; padding-bottom: 2px;">+</button>
                     </div>
                 </div>`).join('') : '<p class="text-center py-8 font-bold text-gray-400 flex flex-col items-center gap-2"><i data-lucide="shopping-cart" class="w-8 h-8 opacity-50"></i> السلة فارغة</p>';
             
@@ -906,13 +1023,13 @@
         const getStatusData = (status) => {
             if(status.includes('قيد التحضير') || status.includes('تم قبول')) return { text: status, color: 'text-orange-500', bg: 'bg-orange-100', anim: 'anim-cooking', icon: '🍳' };
             if(status.includes('في الطريق') || status.includes('قيد التوصيل') || status.includes('استلام')) return { text: status, color: 'text-blue-500', bg: 'bg-blue-100', anim: 'anim-driving', icon: '🛵' };
-            if(status.includes('5. تم توصيل الطلب بنجاح') || status.includes('تم التوصيل') || status.includes('تم التسليم')) return { text: 'تم توصيل الطلب بنجاح', color: 'text-green-500', bg: 'bg-green-100', anim: 'anim-done', icon: '✅' };
+            if(status.includes('تم توصيل الطلب بنجاح') || status.includes('تم التوصيل') || status.includes('تم التسليم')) return { text: 'تم توصيل الطلب بنجاح', color: 'text-green-500', bg: 'bg-green-100', anim: 'anim-done', icon: '✅' };
             return { text: status, color: 'text-gray-500', bg: 'bg-gray-200', anim: '', icon: '⏳' };
         };
 
         window.renderActiveOrderBanner = () => {
             const banner = document.getElementById('active-order-banner');
-            const activeOrder = appState.myOrders.find(o => !o.status.includes('تم توصيل الطلب بنجاح') && !o.status.includes('تم التوصيل') && !o.status.includes('مرفوض'));
+            const activeOrder = appState.myOrders.find(o => !o.status.includes('تم توصيل الطلب بنجاح') && !o.status.includes('مرفوض'));
             
             if (activeOrder) {
                 const s = getStatusData(activeOrder.status);
