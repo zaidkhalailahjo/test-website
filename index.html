@@ -47,7 +47,7 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen text-gray-800">
 
-    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Header -->
     <header class="bg-[#002d74] text-white shadow-lg sticky top-0 z-40">
@@ -387,6 +387,24 @@
         const PATH_PRODUCTS = `artifacts/${APP_ID}/public/data/menu_products`;
         const PATH_FEEDBACK = `artifacts/${APP_ID}/public/data/feedback`;
 
+        // === TELEGRAM BOT CONFIGURATION ===
+        const TELEGRAM_TOKEN = '8763721643:AAFySvK6lMwmaPbf4w6es76sdNq_T_aG9xw';
+        const TELEGRAM_CHAT_ID = 'ضع_رقمك_هنا'; // ضع الـ ID هنا
+
+        const sendTelegramNotification = async (title) => {
+            if(TELEGRAM_CHAT_ID === 'ضع_رقمك_هنا') return;
+            const text = `🔔 <b>${title}</b>\n\nالرابط:\nhttps://admin.farah-snacks.store/`;
+            const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: text, parse_mode: 'HTML' })
+                });
+            } catch(e) { console.error("Telegram error", e); }
+        };
+        // ==================================
+
         const CATEGORIES = ['الكل', 'المطاعم', 'شيبس', 'شوكولاتة', 'قهوة', 'بسكويت', 'علكة'];
         
         // Initial Hardcoded Lists
@@ -404,13 +422,10 @@
             { id: '31', name: 'سندويشة بطاطا', price: 0, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/images__20_-removebg-preview.png', ingredients: 'بخبز شراك' },
             { id: 'potato_small', name: 'سندويشة بطاطا صغيرة', price: 0.40, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/images__20_-removebg-preview.png' },
             { id: 'potato_large', name: 'سندويشة بطاطا كبيرة', price: 0.80, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/images__20_-removebg-preview.png' },
-            
-            // الأصناف الجديدة لمطعم سلمة
             { id: 'zinger', name: 'سندويشة شاورما', price: 1.50, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B3%D8%A7%D9%86%D8%AF%D9%88%D8%AA%D8%B4_%D8%B2%D9%86%D8%AC%D8%B1-removebg-preview.png', ingredients: 'اختر بين سندويشة أو وجبة' },
             { id: 'zinger_sand', name: 'سندويشة زنجر', price: 1.50, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B3%D8%A7%D9%86%D8%AF%D9%88%D8%AA%D8%B4_%D8%B2%D9%86%D8%AC%D8%B1-removebg-preview.png' },
             { id: 'zinger_meal', name: 'وجبة زنجر', price: 2.50, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B3%D8%A7%D9%86%D8%AF%D9%88%D8%AA%D8%B4_%D8%B2%D9%86%D8%AC%D8%B1-removebg-preview.png' },
             { id: 'shawarma_italy', name: 'وجبة شاورما ايطالي', price: 3.75, category: 'المطاعم', restaurant: 'مطعم سلمة', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B4%D8%A7%D9%88%D8%B1%D9%85%D8%A7-%D8%A7%D9%8A%D8%B7%D8%A7%D9%84%D9%8A-copy-removebg-preview.png', ingredients: 'تقدم مع بطاطا و مخلل و مايونيز' },
-
             { id: '24', name: 'كاسة قهوة', price: 0.50, category: 'المطاعم', restaurant: 'الحموي', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/cafe.jpeg', ingredients: 'قهوه تركية أصيلة.' },
             { id: '25', name: 'Ice tea peach', price: 1.00, category: 'المطاعم', restaurant: 'الحموي', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/pngtree-iced-tea-in-plastic-cup-with-ice-cubes-png-image_15236193-removebg-preview.png' },
             { id: '26', name: 'قهوة لاتيه', price: 2.00, category: 'المطاعم', restaurant: 'انكل اوساكا', hideFromAll: true, image: 'https://uncleosaka.com/wp-content/uploads/2024/02/HOT-COFFEE.png' },
@@ -420,8 +435,6 @@
             { id: 'osaka_3', name: 'Vanilla Latte', price: 2.50, category: 'المطاعم', restaurant: 'انكل اوساكا', hideFromMenu: true, image: 'https://uncleosaka.com/wp-content/uploads/2024/02/testing2.jpg' },
             { id: 'osaka_4', name: 'hazelnut latte', price: 2.50, category: 'المطاعم', restaurant: 'انكل اوساكا', hideFromMenu: true, image: 'https://uncleosaka.com/wp-content/uploads/2024/02/testing2.jpg' },
             { id: 'osaka_5', name: 'Pistachio Latte', price: 2.95, category: 'المطاعم', restaurant: 'انكل اوساكا', hideFromMenu: true, image: 'https://uncleosaka.com/wp-content/uploads/2024/02/testing2.jpg' },
-            
-            // سناكات
             { id: '30', name: 'شوكلاته فيوري', price: 0.10, category: 'المطاعم', restaurant: 'سناكات', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/Xrv1gtMvDtRtqoQfh00kvW4blvOZvPPZeOpnPb3G-removebg-preview.png' },
             { id: '28', name: 'شنينه', price: 0.50, category: 'المطاعم', restaurant: 'سناكات', hideFromAll: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/MDLNy6yzNPVuJTPuKCbOyJe6cLZQVaNd8TxHZmci-removebg-preview.png' },
             { id: 'shanina_1', name: 'شنينه 0.50', price: 0.50, category: 'المطاعم', restaurant: 'سناكات', hideFromMenu: true, image: 'https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/MDLNy6yzNPVuJTPuKCbOyJe6cLZQVaNd8TxHZmci-removebg-preview.png' },
@@ -483,7 +496,6 @@
         window.toggleModal = toggleModal;
         document.querySelectorAll('.close-modal').forEach(b => b.onclick = (e) => toggleModal(e.target.closest('.modal').id.replace('-modal',''), false));
 
-        // 1. Storage & Firebase
         const loadLocalCart = () => { try { return JSON.parse(localStorage.getItem(LS_CART_KEY)) || {}; } catch (e) { return {}; } };
         const saveLocalCart = () => localStorage.setItem(LS_CART_KEY, JSON.stringify(appState.cart));
 
@@ -498,7 +510,6 @@
                     appState.profile = snap.data();
                     updateAuthUI();
                     
-                    // Alert for debt after 5 seconds of loading profile
                     if (appState.profile.debt && appState.profile.debt > 0 && !appState.debtAlertShown) {
                         appState.debtAlertShown = true;
                         setTimeout(() => {
@@ -593,22 +604,16 @@
                         }
                         appState.isAuthReady = true; checkLocation(); renderProducts(); 
                     } else {
-                        try {
-                            await signInAnonymously(appState.auth);
-                        } catch (err) {
-                            console.error('Anon login fail:', err);
-                        }
+                        try { await signInAnonymously(appState.auth); } catch (err) {}
                     }
                 });
             } catch (e) {
-                console.error("Firebase init err:", e);
                 appState.db = 'LOCAL'; appState.isAuthReady = true;
                 appState.cart = loadLocalCart();
                 updateCartUI(); checkLocation();
             }
         };
 
-        // 2. Auth Methods
         window.googleLogin = () => {
             const provider = new GoogleAuthProvider();
             signInWithPopup(appState.auth, provider).then(() => showToast('تم تسجيل الدخول!', 'success')).catch(() => showToast('خطأ بالدخول', 'error'));
@@ -625,15 +630,11 @@
             } catch(e) { showToast("حدث خطأ", "error"); }
         };
 
-        window.confirmLogout = () => {
-            toggleModal('auth', false);
-            toggleModal('logout-confirm', true);
-        };
+        window.confirmLogout = () => { toggleModal('auth', false); toggleModal('logout-confirm', true); };
 
         window.executeLogout = () => {
             signOut(appState.auth).then(() => { 
-                toggleModal('logout-confirm', false); 
-                showToast('تم تسجيل الخروج بنجاح', 'success'); 
+                toggleModal('logout-confirm', false); showToast('تم تسجيل الخروج بنجاح', 'success'); 
             });
         };
 
@@ -666,7 +667,6 @@
                 document.getElementById('profile-phone').textContent = appState.profile.name;
                 document.getElementById('profile-wallet').textContent = (appState.profile.balance||0).toFixed(2);
                 
-                // Debt UI Logic
                 const debtContainer = document.getElementById('profile-debt-container');
                 if(appState.profile.debt && appState.profile.debt > 0) {
                     debtContainer.classList.remove('hidden');
@@ -677,10 +677,8 @@
             }
         };
 
-        // Feedback Logic
         window.openFeedback = () => {
-            toggleModal('auth', false);
-            window.renderFeedbackList();
+            toggleModal('auth', false); window.renderFeedbackList();
             document.getElementById('feedback-form-sec').classList.add('hidden');
             document.getElementById('feedback-list-sec').classList.remove('hidden');
             toggleModal('feedback', true);
@@ -703,22 +701,27 @@
             
             try {
                 await addDoc(collection(appState.db, PATH_FEEDBACK), {
-                    uid: appState.user.uid,
-                    customerName: appState.profile?.name || 'بدون اسم',
-                    phone: appState.profile?.phone || '',
-                    type: appState.currentFeedbackType,
-                    content: text,
-                    status: 'يتم حلها',
-                    createdAt: serverTimestamp()
+                    uid: appState.user.uid, customerName: appState.profile?.name || 'بدون اسم', phone: appState.profile?.phone || '',
+                    type: appState.currentFeedbackType, content: text, status: 'يتم حلها', createdAt: serverTimestamp()
                 });
+                
+                // TELEGRAM NOTIFICATION
+                sendTelegramNotification(appState.currentFeedbackType === 'complaint' ? 'شكوى جديدة من فرح سناكس!' : 'اقتراح جديد من فرح سناكس!');
+
                 showToast("تم الإرسال للإدارة بنجاح!", "success");
                 window.openFeedback();
-            } catch(e) {
-                console.error(e);
-                showToast("حدث خطأ", "error");
-            }
+            } catch(e) { showToast("حدث خطأ", "error"); }
             btn.disabled = false; btn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i> إرسال للإدارة';
             if(window.lucide) lucide.createIcons();
+        };
+
+        window.deleteFeedback = async (id) => {
+            if(confirm('هل أنت متأكد من مسح هذه الرسالة؟')) {
+                try {
+                    await deleteDoc(doc(appState.db, PATH_FEEDBACK, id));
+                    showToast('تم مسح الرسالة بنجاح', 'success');
+                } catch(e) { showToast('حدث خطأ أثناء المسح', 'error'); }
+            }
         };
 
         window.renderFeedbackList = () => {
@@ -732,17 +735,22 @@
                 const isResolved = f.status === 'تم حلها';
                 const statusColor = isResolved ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700';
                 const typeLabel = f.type === 'complaint' ? 'شكوى' : 'اقتراح';
-                return `<div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl mb-2 text-right">
+                return `<div class="bg-gray-50 border border-gray-200 p-4 rounded-2xl mb-2 text-right relative">
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-bold text-[#002d74] text-sm">${typeLabel}</span>
-                        <span class="text-xs font-bold px-3 py-1 rounded-full ${statusColor}">${f.status || 'يتم حلها'}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold px-3 py-1 rounded-full ${statusColor}">${f.status || 'يتم حلها'}</span>
+                            <button onclick="window.deleteFeedback('${f.id}')" class="text-red-500 hover:bg-red-100 p-1.5 rounded-lg transition-colors" title="حذف الرسالة">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
                     <p class="text-sm text-gray-600 line-clamp-2 font-medium">${f.content}</p>
                 </div>`;
             }).join('');
+            if(window.lucide) lucide.createIcons();
         };
 
-        // 3. Main App Logic
         const calculateTotals = () => {
             const items = Object.values(appState.cart);
             const sub = items.reduce((sum, i) => sum + (i.product.price * i.quantity), 0);
@@ -813,10 +821,8 @@
 
                 let action = '';
                 if (['24','27','28','31','zinger'].includes(p.id)) {
-                    // Products with options: ALWAYS show '+' to force user to choose option from modal
                     action = `<button class="bg-[#002d74] w-10 h-10 flex items-center justify-center rounded-full text-white shadow-md hover:scale-105 transition-transform" onclick="event.stopPropagation(); window.addItem('${p.id}')"><i data-lucide="plus" class="w-5 h-5"></i></button>`;
                 } else {
-                    // Normal products
                     if (qty > 0) {
                         action = `<div class="flex items-center justify-between bg-[#f3f4f6] rounded-full w-[100px] h-[40px] p-1 shadow-inner border border-gray-200" onclick="event.stopPropagation()">
                             <button class="text-red-500 font-bold text-2xl w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-100 transition-colors" style="line-height: 0; padding-bottom: 2px;" onclick="window.updateQty('${p.id}', -1)">-</button>
@@ -835,7 +841,6 @@
             if(window.lucide) lucide.createIcons();
         };
 
-        // 4. Cart & Checkout
         window.addItem = (id) => {
             const loggedIn = appState.user && !appState.user.isAnonymous;
             if(!loggedIn) return showToast("قم بتسجيل الدخول أولاً", "error");
@@ -868,15 +873,12 @@
             const msg = document.getElementById('coupon-message');
             
             let validCoupon = COUPONS[c];
-            
-            // Check if user has personal custom coupon assigned by admin
             if(!validCoupon && appState.profile?.customCoupon && appState.profile.customCoupon.code === c) {
                 validCoupon = { type: appState.profile.customCoupon.type, val: appState.profile.customCoupon.val };
             }
 
             if(validCoupon) {
-                appState.appliedCoupon = validCoupon; 
-                appState.appliedCouponCode = c;
+                appState.appliedCoupon = validCoupon; appState.appliedCouponCode = c;
                 msg.textContent = 'تم تطبيق الخصم بنجاح!'; msg.className = 'text-xs text-green-600 bg-green-50 p-2 mt-2 rounded-lg block font-bold border border-green-200';
             } else {
                 appState.appliedCoupon = null; appState.appliedCouponCode = '';
@@ -974,13 +976,15 @@
                     Object.keys(appState.cart).forEach(k => t.delete(doc(appState.db, `artifacts/${APP_ID}/users/${appState.user.uid}/cartItems`, k)));
                 });
                 
+                // TELEGRAM NOTIFICATION
+                sendTelegramNotification('طلب جديد من فرح سناكس!');
+
                 appState.customOrder = ''; renderProducts(); toggleModal('checkout', false);
                 toggleModal('success', true);
             } catch(e) { console.error(e); showToast("حدث خطأ", "error"); }
             btn.innerHTML = original; btn.disabled = false;
         };
 
-        // UI Detail Mappers
         window.openZingerOptions = () => {
             document.getElementById('product-modal-body').innerHTML = `<div class="p-6 text-center"><img src="https://uploads.onecompiler.io/43n8uttmw/44hm8gjgg/%D8%B3%D8%A7%D9%86%D8%AF%D9%88%D8%AA%D8%B4_%D8%B2%D9%86%D8%AC%D8%B1-removebg-preview.png" class="h-40 mx-auto mb-4 object-contain"><h2 class="text-2xl font-bold text-[#002d74] mb-6">سندويشة شاورما</h2><div class="space-y-3" dir="rtl"><button onclick="window.addItem('zinger_sand');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-4 px-5 bg-white border border-gray-200 rounded-2xl font-bold text-[#002d74] shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] transition-all"><span>سندويشة زنجر</span><span class="text-gray-500">1.50 د.أ</span></button><button onclick="window.addItem('zinger_meal');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-4 px-5 bg-white border border-gray-200 rounded-2xl font-bold text-[#002d74] shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] transition-all"><span>وجبة زنجر</span><span class="text-gray-500">2.50 د.أ</span></button></div></div>`;
             toggleModal('product', true);
