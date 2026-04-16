@@ -2081,4 +2081,513 @@
                 
                 sendTelegramNotification('طلب جديد من فرح سناكس!');
 
-                if (
+                if (appState.activeGroupId) {
+                    appState.activeGroupId = null; window.history.pushState({}, '', window.location.pathname); listenToCart();
+                }
+
+                appState.customOrder = ''; window.renderApp(); toggleModal('checkout', false);
+                toggleModal('success', true);
+            } catch(e) { console.error(e); showToast("حدث خطأ", "error"); }
+            btn.innerHTML = original; btn.disabled = false;
+        };
+
+        window.reorder = async (orderId) => {
+            const o = appState.myOrders.find(x => x.id === orderId);
+            if(!o) return;
+            if (Object.keys(appState.cart).length > 0) {
+                if (appState.activeGroupId) return showToast("لا يمكنك إعادة الطلب أثناء المشاركة في طلب جماعي.", "error");
+                if (!confirm("سلتك تحتوي على منتجات حالياً. هل تريد استبدالها لإعادة هذا الطلب؟")) return;
+                if (appState.db !== 'LOCAL') Object.keys(appState.cart).forEach(k => deleteDoc(doc(appState.db, `artifacts/${APP_ID}/users/${appState.user.uid}/cartItems`, k)).catch(e=>console.log(e)));
+                appState.cart = {};
+            }
+            
+            o.items.forEach(i => {
+                if(i.isAvailable === false) return; 
+                const k = i.option ? `${i.product.id}_${i.option}` : i.product.id;
+                appState.cart[k] = { product: i.product, quantity: (appState.cart[k]?.quantity||0) + i.quantity, option: i.option };
+            });
+            
+            saveLocalCart();
+            if (appState.db !== 'LOCAL') for (const k in appState.cart) await setDoc(doc(appState.db, `artifacts/${APP_ID}/users/${appState.user.uid}/cartItems`, k), appState.cart[k]);
+            updateCartUI(); showToast("تم إعادة إضافة المنتجات للسلة", "success"); toggleModal('my-order-details', false); toggleModal('cart', true);
+        };
+
+        window.openZingerOptions = () => {
+            const p = appState.products.find(x => x.id === 'zinger');
+            document.getElementById('product-modal-body').innerHTML = `
+                <div class="p-6 text-center">
+                    <img src="${p?.image}" class="h-40 mx-auto mb-4 object-contain">
+                    <h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-6">ساندويشة زنجر</h2>
+                    <div class="space-y-3" dir="rtl">
+                        ${buildOptionRow('zinger', 'ساندويشة زنجر', 1.50)}
+                        ${buildOptionRow('zinger', 'وجبة زنجر', 2.50)}
+                    </div>
+                </div>`;
+            toggleModal('product', true);
+        };
+
+        window.openCoffeeOptions = () => {
+            const p = appState.products.find(x => x.id === '24'); if(!p) return;
+            document.getElementById('product-modal-body').innerHTML = `<div class="p-6 text-center"><img src="${p.image}" class="h-40 mx-auto mb-4 object-contain"><h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-6">${p.name}</h2><div class="space-y-3" dir="rtl"><button onclick="window.addToCartWithOption('24', 'سادة')" class="w-full flex justify-between items-center py-4 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-[#002d74] dark:text-blue-300 shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] dark:hover:bg-gray-700 transition-all"><span>قهوة سادة</span><span class="text-gray-500">${p.price.toFixed(2)} د.أ</span></button><button onclick="window.addToCartWithOption('24', 'حلوة')" class="w-full flex justify-between items-center py-4 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-[#002d74] dark:text-blue-300 shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] dark:hover:bg-gray-700 transition-all"><span>قهوة حلوة</span><span class="text-gray-500">${p.price.toFixed(2)} د.أ</span></button><button onclick="window.addToCartWithOption('24', 'سكر خفيف')" class="w-full flex justify-between items-center py-4 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-[#002d74] dark:text-blue-300 shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] dark:hover:bg-gray-700 transition-all"><span>سكر خفيف</span><span class="text-gray-500">${p.price.toFixed(2)} د.أ</span></button></div></div>`;
+            toggleModal('product', true);
+        };
+
+        window.openOsakaOptions = () => {
+            document.getElementById('product-modal-body').innerHTML = `<div class="p-6 text-center"><img src="https://uncleosaka.com/wp-content/uploads/2024/02/testing2.jpg" class="h-40 mx-auto mb-4 rounded-xl object-contain"><h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-6">انكل اوساكا</h2><div class="space-y-3" dir="ltr"><button onclick="window.addItem('osaka_1');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-4 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-[#002d74] dark:text-blue-300 shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] dark:hover:bg-gray-700 transition-all"><span>Spanish latte</span><span class="text-gray-500">2.00 د.أ</span></button><button onclick="window.addItem('osaka_2');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-4 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-[#002d74] dark:text-blue-300 shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] dark:hover:bg-gray-700 transition-all"><span>Caramel Latte</span><span class="text-gray-500">2.50 د.أ</span></button><button onclick="window.addItem('osaka_3');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-4 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-[#002d74] dark:text-blue-300 shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] dark:hover:bg-gray-700 transition-all"><span>Vanilla Latte</span><span class="text-gray-500">2.50 د.أ</span></button><button onclick="window.addItem('osaka_4');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-4 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-[#002d74] dark:text-blue-300 shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] dark:hover:bg-gray-700 transition-all"><span>Hazelnut latte</span><span class="text-gray-500">2.50 د.أ</span></button><button onclick="window.addItem('osaka_5');window.toggleModal('product',false)" class="w-full flex justify-between items-center py-4 px-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-[#002d74] dark:text-blue-300 shadow-sm hover:border-[#00839b] hover:bg-[#f0f9fa] dark:hover:bg-gray-700 transition-all"><span>Pistachio Latte</span><span class="text-gray-500">2.95 د.أ</span></button></div></div>`;
+            toggleModal('product', true);
+        };
+
+        window.openMatrixOptions = (id) => {
+            const p = appState.products.find(x => x.id === id);
+            document.getElementById('product-modal-body').innerHTML = `
+                <div class="p-6 text-center">
+                    <img src="${p?.image}" class="h-40 mx-auto mb-4 object-contain">
+                    <h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-6">مشروبات ماتريكس</h2>
+                    <div class="space-y-3" dir="rtl">
+                        ${buildOptionRow(id, 'ماتريكس كولا', 0.25)}
+                        ${buildOptionRow(id, 'ماتريكس اب', 0.25)}
+                        ${buildOptionRow(id, 'ماتركس اورنج', 0.25)}
+                    </div>
+                </div>`;
+            toggleModal('product', true);
+        };
+
+        window.openShaninaOptions = () => {
+            const p = appState.products.find(x => x.id === '28');
+            document.getElementById('product-modal-body').innerHTML = `
+                <div class="p-6 text-center">
+                    <img src="${p?.image}" class="h-40 mx-auto mb-4 object-contain">
+                    <h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-2">شنينه</h2>
+                    <p class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-6">الرجاء اختيار الحجم/السعر:</p>
+                    <div class="space-y-3" dir="rtl">
+                        ${buildOptionRow('28', 'شنينه 0.50', 0.50)}
+                        ${buildOptionRow('28', 'شنينه 0.75', 0.75)}
+                        ${buildOptionRow('28', 'شنينه 1.00', 1.00)}
+                        ${buildOptionRow('28', 'شنينه 1.25', 1.25)}
+                    </div>
+                </div>`;
+            toggleModal('product', true);
+        };
+
+        window.openPotatoOptions = () => {
+            const p = appState.products.find(x => x.id === '31');
+            document.getElementById('product-modal-body').innerHTML = `
+                <div class="p-6 text-center">
+                    <img src="${p?.image}" class="h-40 mx-auto mb-4 object-contain">
+                    <h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-4">سندويشة بطاطا</h2>
+                    <div class="text-right mb-5 border-b dark:border-gray-700 pb-4">
+                        <h2 class="text-sm font-bold mb-3 text-[#002d74] dark:text-blue-300">إضافات (اختياري)</h2>
+                        <label class="flex items-center gap-3 mb-2 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <input type="checkbox" id="no-ketchup" class="w-5 h-5 text-[#00839b] rounded" onchange="window.togglePotatoMod('ketchup')" ${appState.potatoNoKetchup?'checked':''}> 
+                            <span class="font-bold text-gray-700 dark:text-gray-300 text-sm">بدون كتشب</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <input type="checkbox" id="no-mayo" class="w-5 h-5 text-[#00839b] rounded" onchange="window.togglePotatoMod('mayo')" ${appState.potatoNoMayo?'checked':''}> 
+                            <span class="font-bold text-gray-700 dark:text-gray-300 text-sm">بدون ميونيز</span>
+                        </label>
+                    </div>
+                    <div class="space-y-3" dir="rtl">
+                        ${buildOptionRow('31', 'سندويشة صغيرة', 0.40, true)}
+                        ${buildOptionRow('31', 'سندويشة كبيرة', 0.80, true)}
+                    </div>
+                </div>`;
+            toggleModal('product', true);
+        };
+
+        window.togglePotatoMod = (type) => {
+            if(type === 'ketchup') appState.potatoNoKetchup = !appState.potatoNoKetchup;
+            if(type === 'mayo') appState.potatoNoMayo = !appState.potatoNoMayo;
+            window.openPotatoOptions();
+        };
+
+        window.openIndomieOptions = (id) => {
+            const p = appState.products.find(x => x.id === id);
+            document.getElementById('product-modal-body').innerHTML = `
+                <div class="p-6 text-center">
+                    <img src="${p?.image}" class="h-40 mx-auto mb-4 object-contain">
+                    <h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-6">${p?.name}</h2>
+                    <div class="space-y-3" dir="rtl">
+                        ${buildOptionRow(id, 'بكيت واحد', 0.25)}
+                        ${buildOptionRow(id, '5 بكيتات', 1.00)}
+                    </div>
+                </div>`;
+            toggleModal('product', true);
+        };
+
+        window.openEggsOptions = () => {
+            const p = appState.products.find(x => x.id === '39');
+            document.getElementById('product-modal-body').innerHTML = `
+                <div class="p-6 text-center">
+                    <img src="${p?.image}" class="h-40 mx-auto mb-4 object-contain">
+                    <h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-6">بيض</h2>
+                    <div class="space-y-3" dir="rtl">
+                        ${buildOptionRow('39', 'كرتونة بيض', 3.15)}
+                        ${buildOptionRow('39', 'بيضة واحدة', 0.15)}
+                    </div>
+                </div>`;
+            toggleModal('product', true);
+        };
+
+        window.openDetails = (id) => {
+            const p = appState.products.find(x => x.id === id); if(!p) return;
+            if(p.outOfStock) return;
+            if(hasDynamicOptions(id)) { window.addItem(id); return; }
+            
+            const related = appState.products.filter(x => x.restaurant === p.restaurant && x.id !== p.id && !x.hideFromMenu).sort(() => 0.5 - Math.random()).slice(0, 4);
+            let relatedHtml = '';
+            if (related.length > 0) {
+                relatedHtml = `
+                    <div class="mt-6 text-right border-t dark:border-gray-700 pt-4">
+                        <h4 class="font-bold text-sm text-[#002d74] dark:text-blue-300 mb-3">غالباً ما يُشترى مع هذا المنتج:</h4>
+                        <div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
+                            ${related.map(r => `
+                                <div class="min-w-[110px] w-[110px] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-2 cursor-pointer flex-shrink-0 flex flex-col items-center hover:shadow-md transition-shadow" onclick="window.openDetails('${r.id}')">
+                                    <img src="${r.image}" class="h-12 w-12 object-contain mb-2">
+                                    <span class="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate w-full text-center">${r.name}</span>
+                                    <span class="text-[10px] text-[#00839b] dark:text-cyan-400 font-black mt-1">${r.price.toFixed(2)} د.أ</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('product-modal-body').innerHTML = `
+                <div class="p-6 text-center">
+                    <img src="${p.image}" class="h-48 mx-auto mb-4 object-contain ${p.outOfStock ? 'opacity-50 grayscale' : ''}">
+                    <h2 class="text-2xl font-bold text-[#002d74] dark:text-blue-300 mb-2">${p.name}</h2>
+                    <p class="font-black text-[#00839b] dark:text-cyan-400 text-xl mb-4">${p.price.toFixed(2)} د.أ</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">${p.ingredients||''}</p>
+                    <button onclick="window.addItem('${id}');window.toggleModal('product',false)" class="w-full bg-[#00839b] text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-[#005f73] transition-colors text-lg flex justify-center items-center gap-2 mb-2">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i> إضافة للسلة
+                    </button>
+                    ${relatedHtml}
+                </div>`;
+            toggleModal('product', true);
+            if(window.lucide) lucide.createIcons();
+        };
+
+        const getStatusData = (status) => {
+            if(status === 'بانتظار قبول الطلب') return { text: 'جاري البحث عن مندوب', color: 'text-orange-500', bg: 'bg-orange-100', anim: 'animate-pulse', icon: '🔍' };
+            if(status === 'تم قبول الطلب') return { text: 'تم قبول الطلب', color: 'text-blue-500', bg: 'bg-blue-100', anim: '', icon: '', iframeAnim: 'accepted' };
+            if(status === 'قيد التنفيذ') return { text: 'طلبك قيد التجهيز', color: 'text-orange-500', bg: 'bg-orange-100', anim: 'anim-cooking', icon: '🍳' };
+            if(status === 'تم استلام الطلب') return { text: 'المندوب في الطريق إليك', color: 'text-blue-500', bg: 'bg-blue-50', anim: '', icon: '', iframeAnim: 'delivery' };
+            if(status === 'تم توصيل الطلب بنجاح') return { text: 'تم التوصيل', color: 'text-green-500', bg: 'bg-green-100', anim: 'anim-done', icon: '✅' };
+            if(status === 'مرفوض') return { text: 'تم الإلغاء', color: 'text-red-500', bg: 'bg-red-100', anim: '', icon: '❌' };
+            return { text: status, color: 'text-gray-500', bg: 'bg-gray-200', anim: '', icon: '⏳' };
+        };
+
+        const getIframeAnimation = (type, displayContext) => {
+            let w, h, scale, topOffset, iframeId, origW, origH;
+            if (type === 'delivery') { iframeId = '364510163612204861'; origW = 450; origH = 900; } 
+            else if (type === 'accepted') { iframeId = '3940718420217790'; origW = 345; origH = 359; } 
+            else { return ''; }
+            
+            if (displayContext === 'banner') { w = 80; h = 50; } 
+            else if (displayContext === 'list') { w = 60; h = 40; } 
+            else if (displayContext === 'details') { w = 280; h = 140; }
+
+            scale = w / origW; topOffset = -((origH * scale - h) / 2);
+            return `<div style="width: ${w}px; height: ${h}px; border-radius: 12px; overflow: hidden; position: relative; background: #e0f2fe; flex-shrink: 0; pointer-events: none;" class="shadow-sm border border-blue-200 mx-auto"><iframe src="https://assets.pinterest.com/ext/embed.html?id=${iframeId}&autoplay=1&muted=1&loop=1" allow="autoplay; fullscreen" style="position:absolute; top:${topOffset}px; left:0; width:${origW}px; height:${origH}px; transform:scale(${scale}); transform-origin:top left;" frameborder="0" scrolling="no"></iframe></div>`;
+        };
+
+        window.renderActiveOrderBanner = () => {
+            const banner = document.getElementById('active-order-banner');
+            const activeOrder = appState.myOrders.find(o => !o.status.includes('تم توصيل الطلب بنجاح') && !o.status.includes('مرفوض'));
+            
+            if (activeOrder) {
+                const s = getStatusData(activeOrder.status);
+                const iconElement = s.iframeAnim ? getIframeAnimation(s.iframeAnim, 'banner') : `<div class="${s.bg} p-3 rounded-full animate-pulse text-2xl">${s.icon}</div>`;
+                
+                banner.innerHTML = `
+                    <div onclick="window.showMyOrderDetails('${activeOrder.id}')" class="bg-white dark:bg-darkcard border-2 border-[#00839b]/20 dark:border-gray-700 rounded-2xl p-4 flex justify-between items-center cursor-pointer shadow-md hover:shadow-lg transition-all">
+                        <div class="flex items-center gap-3">
+                            ${iconElement}
+                            <div>
+                                <h3 class="font-bold text-[#002d74] dark:text-blue-300">طلبك الحالي قيد التنفيذ</h3>
+                                <p class="text-sm font-bold ${s.color} mt-0.5">${s.text}</p>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-left" class="w-6 h-6 text-gray-400"></i>
+                    </div>`;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+            if(window.lucide) lucide.createIcons();
+        };
+
+        window.renderMyOrders = () => {
+            const container = document.getElementById('orders-list-container');
+            if(!appState.myOrders.length) { container.innerHTML = '<div class="text-center py-10 text-gray-400"><i data-lucide="inbox" class="w-12 h-12 mx-auto mb-2 opacity-50"></i><p>لا توجد طلبات حديثة</p></div>'; if(window.lucide) lucide.createIcons(); return; }
+            container.innerHTML = appState.myOrders.map(o => {
+                const s = getStatusData(o.status);
+                const iconElement = s.iframeAnim ? getIframeAnimation(s.iframeAnim, 'list') : `<span class="text-lg ${s.anim}">${s.icon}</span>`;
+                return `<div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden cursor-pointer hover:border-[#00839b]/30 transition-colors flex flex-col" onclick="window.showMyOrderDetails('${o.id}')"><div class="flex justify-between items-center mb-3 border-b border-gray-50 dark:border-gray-700 pb-2"><span class="text-xs text-gray-400 font-bold">طلب #${o.id.substring(0,6)}</span><div class="flex items-center gap-2 px-3 py-1 ${s.iframeAnim ? 'rounded-xl' : 'rounded-full'} ${s.bg} ${s.color} text-xs font-bold">${iconElement} ${s.text}</div></div><div class="text-xs space-y-1.5 mb-3 text-gray-600 dark:text-gray-300 font-medium">${o.items.map(i => `<div class="${i.isAvailable === false ? 'line-through text-red-400' : ''}">${i.quantity}x ${i.product?.name||'منتج'} ${i.option?`(${i.option})`:''}</div>`).join('')}</div><div class="flex justify-between items-center pt-2"><span class="text-[10px] font-bold bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-gray-500 dark:text-gray-300">الدفع: ${o.paymentMethod==='wallet'?'محفظة':'كاش'}</span><span class="font-black text-[#002d74] dark:text-blue-300 text-lg">${(o.total || 0).toFixed(2)} د.أ</span></div></div>`;
+            }).join('');
+        };
+
+        window.showMyOrderDetails = (orderId) => {
+            const o = appState.myOrders.find(x => x.id === orderId);
+            if(!o) return;
+            
+            const itemsHtml = o.items.map(i => `
+                <div class="flex items-center gap-3 bg-white dark:bg-gray-800 p-3 rounded-2xl border ${i.isAvailable === false ? 'border-red-200 bg-red-50 dark:bg-red-900/20 opacity-60' : 'border-gray-100 dark:border-gray-700'} mb-2 shadow-sm">
+                    <img src="${i.product?.image||''}" class="w-14 h-14 object-contain rounded-xl bg-gray-50 dark:bg-gray-700 p-1 ${i.isAvailable === false ? 'grayscale' : ''}">
+                    <div class="flex-grow">
+                        <p class="font-bold text-sm ${i.isAvailable === false ? 'text-gray-500 line-through' : 'text-[#002d74] dark:text-blue-300'}">${i.product?.name||'منتج'} ${i.option ? `<span class="text-[#00839b] dark:text-cyan-400">(${i.option})</span>` : ''} ${i.isAvailable === false ? '<span class="text-xs text-red-500 block mt-1">غير متوفر (تم حذفه من الفاتورة)</span>' : ''}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-bold mt-1">الكمية: <span class="text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-gray-600 px-2 py-0.5 rounded">${i.quantity}</span></p>
+                    </div>
+                    <div class="font-black ${i.isAvailable === false ? 'text-gray-400 line-through' : 'text-[#00839b] dark:text-cyan-400'} text-lg">${(i.quantity * (i.product?.price||0)).toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            const dateStr = o.createdAt?.toMillis ? new Date(o.createdAt.toMillis()).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'غير محدد';
+            const s = getStatusData(o.status);
+
+            let paymentDetailStr = o.paymentMethod === 'wallet' ? 'خصم من المحفظة' : 'الدفع كاش';
+            if(o.paymentMethod === 'wallet' && o.cashToCollect && o.cashToCollect > 0) {
+                paymentDetailStr = `مخصوم: ${o.deductedFromWallet?.toFixed(2)} / كاش: ${o.cashToCollect?.toFixed(2)}`;
+            }
+
+            let deliveryRowHtml = `<div class="flex justify-between text-gray-600 dark:text-gray-400"><span>سعر التوصيل:</span><span>+ ${(o.fees?.delivery||0).toFixed(2)} د.أ</span></div>`;
+            if(o.fees?.isFreeDelivery) {
+                deliveryRowHtml = `<div class="flex justify-between text-gray-600 dark:text-gray-400"><span>سعر التوصيل:</span><span><span class="line-through text-red-400 mr-1 text-xs font-normal">${(o.fees?.originalDelivery||0.10).toFixed(2)}</span> <span class="text-green-600 font-bold">+ 0.00 د.أ</span></span></div>`;
+            }
+
+            const reorderBtn = o.status === 'تم توصيل الطلب بنجاح' ? `<button onclick="window.reorder('${o.id}')" class="absolute top-3 right-3 text-sm bg-blue-50 dark:bg-blue-900/30 text-[#002d74] dark:text-blue-300 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1 hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"><i data-lucide="refresh-cw" class="w-4 h-4"></i> إعادة الطلب</button>` : '';
+            const iconElement = s.iframeAnim ? `<div class="flex justify-center mt-6 mb-4 w-full">${getIframeAnimation(s.iframeAnim, 'details')}</div>` : `<div class="inline-block ${s.bg} p-3 rounded-full mb-2 mt-8 text-3xl ${s.anim}">${s.icon}</div>`;
+
+            let scheduledText = '';
+            if (o.scheduledFor && o.scheduledFor !== 'ASAP') {
+                 scheduledText = `<div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl border border-blue-200 dark:border-blue-800/50 text-sm mt-3 text-center"><span class="font-bold text-blue-700 dark:text-blue-300 flex items-center justify-center gap-1"><i data-lucide="calendar" class="w-4 h-4"></i> طلب مجدول مسبقاً:</span> <p class="text-blue-900 dark:text-blue-200 mt-1">${o.scheduledFor}</p></div>`;
+            }
+
+            const content = `
+                <div class="space-y-4">
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm text-center relative">
+                        ${reorderBtn}
+                        ${iconElement}
+                        <h3 class="font-bold text-lg ${s.color} mb-1">${s.text}</h3>
+                        <p class="text-xs text-gray-400">طلب #${o.id.substring(0,8)} • ${dateStr}</p>
+                        ${scheduledText}
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-sm text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2"><i data-lucide="shopping-bag" class="w-4 h-4"></i> تفاصيل المنتجات</h4>
+                        ${itemsHtml}
+                        ${o.customOrder ? `<div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-2xl border border-orange-200 dark:border-orange-800/50 text-sm mt-3"><span class="font-bold text-orange-700 dark:text-orange-400 flex items-center gap-1 mb-2"><i data-lucide="message-square" class="w-4 h-4"></i> ملاحظاتك الإضافية:</span> <p class="text-orange-900 dark:text-orange-200 leading-relaxed">${o.customOrder}</p></div>` : ''}
+                    </div>
+
+                    <div class="bg-[#f0f9fa] dark:bg-gray-800 p-5 rounded-2xl border border-[#00839b]/20 dark:border-gray-700 shadow-sm text-sm space-y-3 font-medium">
+                        <div class="flex justify-between text-gray-600 dark:text-gray-400"><span>سعر المنتجات:</span><span>${(o.total - (o.fees?.delivery||0) - (o.fees?.service||0) + (o.fees?.discount||0)).toFixed(2)} د.أ</span></div>
+                        ${deliveryRowHtml}
+                        <div class="flex justify-between text-gray-600 dark:text-gray-400"><span>رسوم الخدمة:</span><span>+ ${(o.fees?.service||0).toFixed(2)} د.أ</span></div>
+                        ${o.fees?.coupon ? `<div class="flex justify-between text-green-600 font-bold bg-green-50 dark:bg-green-900/30 p-2 rounded-lg mt-1"><span>خصم (${o.fees.coupon}):</span><span>- ${(o.fees?.discount||0).toFixed(2)} د.أ</span></div>` : ''}
+                        <div class="flex justify-between border-t border-[#00839b]/20 dark:border-gray-600 pt-3 mt-2 font-black text-2xl text-[#002d74] dark:text-blue-300 items-center">
+                            <span>الإجمالي الكلي</span>
+                            <span class="text-[#00839b] dark:text-cyan-400">${(o.total || 0).toFixed(2)} د.أ</span>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                         <span class="text-xs ${o.paymentMethod === 'wallet' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'} px-4 py-2 rounded-full font-bold inline-flex items-center gap-1">
+                                <i data-lucide="${o.paymentMethod === 'wallet' ? 'wallet' : 'banknote'}" class="w-4 h-4"></i> 
+                                ${paymentDetailStr}
+                        </span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('my-order-details-content').innerHTML = content;
+            if(window.lucide) lucide.createIcons();
+            toggleModal('orders', false);
+            toggleModal('my-order-details', true);
+        };
+
+        // Events
+        const handleSearch = (e) => { appState.search = e.target.value.trim(); window.renderApp(); };
+        document.getElementById('desktop-search')?.addEventListener('input', handleSearch);
+        document.getElementById('mobile-search')?.addEventListener('input', handleSearch);
+
+        window.renderApp = () => { renderProducts(); if(window.lucide) lucide.createIcons(); };
+
+        // -------------------------------------------------------------
+        // --- GAME LOGIC (صائد السناكات) ---
+        // -------------------------------------------------------------
+        let gameCanvas, ctx, gameLoopReq;
+        let gameState = 'start'; 
+        let score = 0;
+        let lives = 3;
+        let player = { x: 150, width: 70, height: 70 };
+        let items = [];
+        let frameCount = 0;
+
+        const goodEmojis = ['🍟', '🍫', '🍔', '🍿', '🥤', '🍩', '🍪', '☕'];
+        const badEmojis = ['💣'];
+
+        window.openGameModal = () => {
+            window.toggleModal('success', false);
+            window.toggleModal('game', true);
+            setTimeout(initGameCanvas, 200);
+        };
+
+        window.closeGameModal = () => {
+            window.toggleModal('game', false);
+            cancelAnimationFrame(gameLoopReq);
+            gameState = 'start';
+            document.getElementById('game-overlay').classList.remove('hidden');
+            document.getElementById('game-msg').innerHTML = `حرك السلة لجمع السناكات 🧺<br><span class="text-red-400">تجنب القنابل! 💣</span>`;
+        };
+
+        const initGameCanvas = () => {
+            gameCanvas = document.getElementById('gameCanvas');
+            ctx = gameCanvas.getContext('2d');
+            
+            const rect = gameCanvas.parentElement.getBoundingClientRect();
+            gameCanvas.width = rect.width;
+            gameCanvas.height = rect.height;
+            
+            player.x = gameCanvas.width / 2 - player.width / 2;
+            player.y = gameCanvas.height - player.height - 20;
+
+            // Controls
+            let isDragging = false;
+            
+            // Touch
+            gameCanvas.addEventListener('touchstart', e => { 
+                isDragging = true; 
+                updatePlayerPos(e.touches[0].clientX); 
+                e.preventDefault(); 
+            }, {passive: false});
+            gameCanvas.addEventListener('touchmove', e => { 
+                if(isDragging) updatePlayerPos(e.touches[0].clientX); 
+                e.preventDefault(); 
+            }, {passive: false});
+            gameCanvas.addEventListener('touchend', () => isDragging = false);
+
+            // Mouse
+            gameCanvas.addEventListener('mousedown', e => { 
+                isDragging = true; 
+                updatePlayerPos(e.clientX); 
+            });
+            gameCanvas.addEventListener('mousemove', e => { 
+                if(isDragging) updatePlayerPos(e.clientX); 
+            });
+            gameCanvas.addEventListener('mouseup', () => isDragging = false);
+            gameCanvas.addEventListener('mouseleave', () => isDragging = false);
+
+            if(gameState === 'start') drawGame(); 
+        };
+
+        const updatePlayerPos = (clientX) => {
+            if(!gameCanvas) return;
+            const rect = gameCanvas.getBoundingClientRect();
+            let x = clientX - rect.left - player.width / 2;
+            if(x < 0) x = 0;
+            if(x > gameCanvas.width - player.width) x = gameCanvas.width - player.width;
+            player.x = x;
+        };
+
+        window.startGame = () => {
+            gameState = 'playing';
+            score = 0;
+            lives = 3;
+            items = [];
+            frameCount = 0;
+            document.getElementById('game-overlay').classList.add('hidden');
+            document.getElementById('game-score').innerText = score;
+            updateLivesDisplay();
+            gameLoop();
+        };
+
+        window.gameOver = () => {
+            gameState = 'over';
+            cancelAnimationFrame(gameLoopReq);
+            const overlay = document.getElementById('game-overlay');
+            overlay.classList.remove('hidden');
+            document.getElementById('game-msg').innerHTML = `انتهت اللعبة!<br>لقد جمعت ${score} نقطة 🏆<br><span class="text-sm font-normal mt-2 block">حاول مرة أخرى لتكسر رقمك القياسي!</span>`;
+        };
+
+        const updateLivesDisplay = () => {
+            document.getElementById('game-lives').innerText = '❤️'.repeat(lives) + '🖤'.repeat(3 - lives);
+        };
+
+        const spawnItem = () => {
+            const isBad = Math.random() < 0.15; // 15% bomb
+            const emojiList = isBad ? badEmojis : goodEmojis;
+            const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
+            const size = 40;
+            const x = Math.random() * (gameCanvas.width - size - 10) + 5;
+            items.push({ 
+                x, y: -size, size, emoji, isBad, 
+                speed: 3 + Math.random() * 3 + (score * 0.03) // Speed increases slightly with score
+            });
+        };
+
+        const gameLoop = () => {
+            if(gameState !== 'playing') return;
+            updateGame();
+            drawGame();
+            gameLoopReq = requestAnimationFrame(gameLoop);
+        };
+
+        const updateGame = () => {
+            frameCount++;
+            
+            // Spawn logic
+            let spawnRate = Math.max(20, 50 - Math.floor(score / 10));
+            if(frameCount % spawnRate === 0) spawnItem();
+
+            for(let i = items.length - 1; i >= 0; i--) {
+                let item = items[i];
+                item.y += item.speed;
+
+                // Collision Detection
+                const padding = 15; // Make catching slightly forgiving
+                if(item.y + item.size - padding > player.y &&
+                   item.x + item.size > player.x &&
+                   item.x < player.x + player.width) {
+
+                    if(item.isBad) {
+                        lives--;
+                        updateLivesDisplay();
+                        if(lives <= 0) window.gameOver();
+                    } else {
+                        score += 10;
+                        document.getElementById('game-score').innerText = score;
+                    }
+                    items.splice(i, 1);
+                }
+                // Missed item
+                else if(item.y > gameCanvas.height) {
+                    if(!item.isBad) {
+                        lives--; 
+                        updateLivesDisplay();
+                        if(lives <= 0) window.gameOver();
+                    }
+                    items.splice(i, 1);
+                }
+            }
+        };
+
+        const drawGame = () => {
+            ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+            // Draw Basket
+            ctx.font = '50px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🧺', player.x + player.width/2, player.y + player.height/2);
+
+            // Draw Items
+            ctx.font = '35px Arial';
+            items.forEach(item => {
+                ctx.fillText(item.emoji, item.x + item.size/2, item.y + item.size/2);
+            });
+        };
+        // -------------------------------------------------------------
+        
+        // Start
+        initFirebase();
+    </script>
+</body>
+</html>
